@@ -1,0 +1,2446 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Офис · Бронирование мест</title>
+<script>
+// Показывает любую JS-ошибку прямо на странице — на телефоне нет консоли
+// разработчика, поэтому иначе такие ошибки просто невидимы для человека.
+(function(){
+  var shown = false;
+  function showErr(msg){
+    if(shown) return; shown = true;
+    var box = document.createElement('div');
+    box.style.cssText = 'position:fixed;top:0;left:0;right:0;z-index:99999;background:#B71C1C;color:#fff;padding:14px 18px;font:13px/1.5 monospace;white-space:pre-wrap;word-break:break-word;box-shadow:0 4px 14px rgba(0,0,0,.4);';
+    box.textContent = 'Ошибка на странице (пришлите этот текст скриншотом): ' + msg;
+    var close = document.createElement('button');
+    close.textContent = '✕';
+    close.style.cssText = 'position:absolute;top:8px;right:10px;background:none;border:none;color:#fff;font-size:16px;cursor:pointer;';
+    close.onclick = function(){ box.remove(); };
+    box.appendChild(close);
+    document.body ? document.body.appendChild(box) : document.addEventListener('DOMContentLoaded', function(){ document.body.appendChild(box); });
+  }
+  window.__showAppError = showErr;
+  window.addEventListener('error', function(e){
+    showErr((e.message || 'неизвестная ошибка') + ' (' + (e.filename||'') + ':' + (e.lineno||'') + ')');
+  });
+  window.addEventListener('unhandledrejection', function(e){
+    showErr('Promise rejection: ' + (e.reason && (e.reason.message || e.reason)));
+  });
+  document.addEventListener('securitypolicyviolation', function(e){
+    showErr('Заблокировано политикой безопасности (CSP): ' + e.violatedDirective + ' — ' + e.blockedURI);
+  });
+  // Если через несколько секунд основной скрипт сайта так и не стартовал —
+  // значит, его тихо заблокировали (антивирус/расширение/CSP), без обычной
+  // JS-ошибки. Обычные обработчики error/unhandledrejection такое не ловят.
+  setTimeout(function(){
+    if(window.__appScriptRan) return;
+    var where = window.__preMainScriptRan
+      ? 'Браузер дошёл до места прямо перед основным кодом сайта, но сам код не выполнился — блокируется именно этот конкретный блок.'
+      : 'Браузер даже не дошёл до места перед основным кодом сайта — блокировка происходит раньше, где-то между шапкой страницы и схемой.';
+    showErr('Скрипт сайта не запустился, и обычной ошибки JS при этом не было. ' + where + ' Похоже, его блокирует антивирус, расширение браузера или сетевой фильтр. Попробуйте открыть сайт в другом браузере или временно отключить блокировщики/антивирус для этого сайта.');
+  }, 4000);
+})();
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Wix+Madefor+Display:wght@400;500;600;700;800&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+<noscript><link href="https://fonts.googleapis.com/css2?family=Wix+Madefor+Display:wght@400;500;600;700;800&display=swap" rel="stylesheet"></noscript>
+<style>
+  :root{
+    --orange: #FF5014;
+    --orange-dark: #E5470F;
+    --orange-deep: #CC3D0C;
+    --orange-tint: #FFF0EA;
+    --orange-tint-2: #FFDBCC;
+    --purple: #5D00D2;
+    --purple-dark: #4A00A8;
+    --purple-tint: #F1E6FC;
+    --yellow: #FFAF2F;
+    --paper: #FFFFFF;
+    --bg: #F7F7F7;
+    --ink: #000000;
+    --ink-soft: #767676;
+    --line: #D9D9D9;
+    --free: #FFFFFF;
+    --free-border: var(--orange);
+    --occupied: var(--orange);
+    --perm-red: var(--purple);
+    --perm-red-dark: var(--purple-dark);
+    --perm-tint: var(--purple-tint);
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background: var(--bg);
+    background-image:
+      radial-gradient(circle at 1px 1px, #EAEAEA 1.5px, transparent 1.5px);
+    background-size: 26px 26px;
+    font-family: 'Wix Madefor Display', system-ui, sans-serif;
+    color: var(--ink);
+    min-height:100vh;
+    display:flex;
+    flex-direction:column;
+  }
+  h1,h2,h3,.display{font-family:'Wix Madefor Display', system-ui, sans-serif;}
+
+  /* Header */
+  header{
+    padding: 22px 28px 16px;
+    display:flex;
+    flex-wrap:wrap;
+    gap:16px;
+    align-items:center;
+    justify-content:space-between;
+    border-bottom: 2px solid var(--line);
+    background: var(--paper);
+  }
+  .brand{display:flex; align-items:center; gap:12px;}
+  .brand .mark{
+    width:40px;height:40px;border-radius:11px;
+    background: linear-gradient(145deg, var(--orange), var(--orange-deep));
+    display:flex;align-items:center;justify-content:center;
+    box-shadow: 0 4px 10px rgba(255,80,20,.35);
+    flex-shrink:0;
+  }
+  .brand .mark svg{width:22px;height:22px;}
+  .brand-text .display{font-size:20px;font-weight:800;letter-spacing:-0.02em;line-height:1.1;}
+  .brand-text .wordmark{
+    height:28px; width:auto; display:block;
+  }
+  .brand-text .sub{
+    font-size:11px; color:var(--ink); font-weight:700; margin-top:5px;
+    text-transform:uppercase; letter-spacing:0.09em;
+  }
+
+  .stats{display:flex; gap:10px; flex-wrap:wrap;}
+  .stat{
+    background: var(--orange-tint);
+    border:1px solid var(--orange-tint-2);
+    border-radius:12px;
+    padding:8px 16px;
+    min-width:96px;
+    text-align:center;
+  }
+  .stat .num{font-family:'Wix Madefor Display';font-weight:800;font-size:20px;color:var(--orange-deep);line-height:1;}
+  .stat .lbl{font-size:11px;color:var(--ink-soft);margin-top:3px;text-transform:uppercase;letter-spacing:.04em;}
+  .stat.total .num{color:var(--ink);}
+
+  .actions{display:flex;gap:10px;align-items:center;}
+  button{font-family:'Wix Madefor Display';cursor:pointer;border:none;outline:none;}
+  .btn{
+    padding:10px 16px;border-radius:10px;font-size:13.5px;font-weight:600;
+    transition: transform .12s ease, box-shadow .12s ease, background .15s ease;
+  }
+  .btn:active{transform: scale(.96);}
+  .btn-primary{background: var(--orange); color:#fff; box-shadow:0 4px 10px rgba(255,80,20,.3);}
+  .btn-primary:hover{background:var(--orange-dark);}
+  .btn-outline{background:#fff; color:var(--orange-deep); border:1.5px solid var(--orange);}
+  .btn-outline:hover{background:var(--orange-tint);}
+  .btn-ghost{background:transparent;color:var(--ink-soft);}
+  .btn-ghost:hover{color:var(--ink);}
+  .btn-danger{background:#fff;color:#C0392B;border:1.5px solid #F2B9AC;}
+  .btn-danger:hover{background:#FFF1EE;}
+  .btn[disabled]{opacity:.45; cursor:not-allowed;}
+
+  .admin-toggle{
+    display:flex;align-items:center;gap:8px;
+    background:#fff;border:1.5px solid var(--line);
+    border-radius:999px;padding:5px 6px 5px 14px;
+    font-size:13px; font-weight:600; color:var(--ink-soft);
+  }
+  .switch{
+    width:38px;height:22px;border-radius:999px;background:#D9D9D9;
+    position:relative;transition:background .2s;flex-shrink:0;
+  }
+  .switch::after{
+    content:'';position:absolute;top:2px;left:2px;width:18px;height:18px;
+    border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.25);
+    transition:transform .2s;
+  }
+  .admin-toggle.on{color:var(--purple);}
+  .admin-toggle.on .switch{background:var(--purple);}
+  .admin-toggle.on .switch::after{transform:translateX(16px);}
+
+  /* main nav */
+  #mainNav{
+    display:flex; gap:8px; padding:12px 28px;
+    background:#fff; border-bottom:2px solid var(--line);
+  }
+  .navtab{
+    padding:9px 18px; border-radius:10px; font-size:13.5px; font-weight:700;
+    background:transparent; color:var(--ink-soft);
+  }
+  .navtab:hover{background:var(--orange-tint);}
+  .navtab.active{background:var(--orange); color:#fff; box-shadow:0 4px 10px rgba(255,80,20,.3);}
+
+  /* admin bar */
+  #adminBar{
+    display:none;
+    padding:10px 28px;
+    background: var(--purple-tint);
+    border-bottom:1px solid #E3CCF7;
+    align-items:center;
+    gap:12px;
+    font-size:13px;
+    color: var(--purple-dark);
+    flex-wrap:wrap;
+  }
+  #adminBar.show{display:flex;}
+  #adminBar .hint{color:#6B3FA0; font-weight:500;}
+
+  /* date bar */
+  #dateBar{
+    padding:14px 28px;
+    background:#fff;
+    border-bottom:1px solid var(--line);
+    display:flex; align-items:center; gap:14px; flex-wrap:wrap;
+  }
+  #dateBar .dateLabel{font-size:13px; color:var(--ink-soft); font-weight:600;}
+  #dateNav{display:flex; align-items:center; gap:6px;}
+  .dnbtn{
+    width:32px;height:32px;border-radius:9px;background:#fff;border:1.5px solid var(--line);
+    display:flex;align-items:center;justify-content:center; color:var(--orange-deep); font-size:16px; font-weight:700;
+  }
+  .dnbtn:hover{background:var(--orange-tint); border-color:var(--orange-tint-2);}
+  #dateInput{
+    font-family:'Wix Madefor Display'; font-size:13.5px; font-weight:600; color:var(--ink);
+    border:1.5px solid var(--line); border-radius:10px; padding:7px 10px; background:#fff;
+  }
+  #dateInput:focus{outline:none; border-color:var(--orange);}
+  #dateBar .weekday{font-size:13px; color:var(--ink-soft);}
+  #todayBtn.is-today{ color:var(--orange-deep); background:var(--orange-tint); font-weight:700; cursor:default; }
+
+  /* Main / floor plan */
+  main{flex:1; padding: 22px 28px 40px; display:flex; justify-content:center;}
+  #planWrap{width:100%; max-width:1180px;}
+  #planTitleRow{display:flex; align-items:baseline; justify-content:space-between; margin-bottom:12px; flex-wrap:wrap; gap:8px;}
+  #planTitleRow h2{font-size:16px; margin:0; color:var(--orange); font-weight:700; letter-spacing:.01em;}
+  .legend{display:flex; gap:16px; font-size:12.5px; color:var(--ink-soft);}
+  .legend span{display:inline-flex;align-items:center;gap:6px;}
+  .swatch{width:12px;height:12px;border-radius:4px;display:inline-block;}
+  .swatch.free{background:#fff;border:2px solid var(--orange);}
+  .swatch.occ{background:var(--orange);}
+  .swatch.perm{background:var(--perm-red);border:2px solid var(--perm-red-dark);}
+
+  #planScroll{ width:100%; }
+  #plan{
+    position:relative;
+    width:100%;
+    height:min(68vh, 620px);
+    background: var(--paper);
+    border:2px solid var(--line);
+    border-radius:20px;
+    overflow:hidden;
+    box-shadow: 0 10px 30px -12px rgba(180,60,10,.18);
+  }
+  #plan.placing{cursor:crosshair;}
+  #plan .empty-msg{
+    position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+    flex-direction:column; gap:8px; color:var(--ink-soft); text-align:center; padding:20px;
+  }
+  #plan .empty-msg b{color:var(--orange-deep); font-family:'Wix Madefor Display';}
+
+  .desk{
+    position:absolute;
+    width:64px;height:64px;
+    transform: translate(-50%,-50%);
+    border-radius:14px;
+    display:flex;flex-direction:column;align-items:center;justify-content:center;
+    user-select:none;
+    -webkit-user-select:none;
+    touch-action:none;
+    transition: box-shadow .15s ease, background .15s ease;
+    background: var(--free);
+    border: 2.5px solid var(--free-border);
+    box-shadow: 0 3px 8px rgba(255,80,20,.14);
+    z-index:2;
+  }
+  .desk:hover{ box-shadow: 0 6px 16px rgba(255,80,20,.28); z-index:5;}
+  .desk.occupied{
+    background: linear-gradient(155deg, var(--orange), var(--orange-dark));
+    border-color: var(--orange-deep);
+  }
+  .desk .icon{width:24px;height:24px;opacity:.85;}
+  .desk.occupied .icon{opacity:.95;}
+  .desk .label{font-size:10px;font-weight:700;margin-top:3px;color:var(--orange-deep);font-family:'Wix Madefor Display'; text-align:center;}
+  .desk.occupied .label{color:#fff;}
+  .desk.dragging{opacity:.85; box-shadow:0 10px 22px rgba(0,0,0,.25); z-index:20;}
+  .desk.admin-mode{cursor:grab;}
+  .desk.admin-mode:active{cursor:grabbing;}
+  .desk .del{
+    position:absolute; top:-8px; right:-8px; width:20px;height:20px;border-radius:50%;
+    background:#fff; border:1.5px solid #E5A98B; color:#C0392B; font-size:12px; line-height:1;
+    display:none; align-items:center;justify-content:center; font-weight:700;
+  }
+  .desk.admin-mode .del{display:flex;}
+
+  /* zones / walls — structural rectangles for building a real floor plan */
+  .zone-el{
+    position:absolute;
+    box-sizing:border-box;
+    border-radius:6px;
+    z-index:1;
+    user-select:none; -webkit-user-select:none; touch-action:none;
+  }
+  .zone-el .zlabel{
+    position:absolute; top:6px; left:8px; right:8px;
+    font-size:11px; font-weight:700; color:rgba(0,0,0,.55);
+    font-family:'Wix Madefor Display'; pointer-events:none;
+    white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+    text-align:center;
+  }
+  .zone-el.admin-mode{cursor:move;}
+  .zone-el:not(.admin-mode){pointer-events:none;}
+  .zone-el .zdel{
+    position:absolute; top:-8px; right:-8px; width:20px;height:20px;border-radius:50%;
+    background:#fff; border:1.5px solid #E5A98B; color:#C0392B; font-size:12px; line-height:1;
+    display:none; align-items:center;justify-content:center; font-weight:700; z-index:2;
+  }
+  .zone-el.admin-mode .zdel{display:flex;}
+  .zone-el .resize-handle{
+    position:absolute; right:-6px; bottom:-6px; width:16px; height:16px;
+    border-radius:5px; background:var(--orange); border:2px solid #fff;
+    box-shadow:0 1px 4px rgba(0,0,0,.3); cursor:nwse-resize; display:none;
+  }
+  .zone-el.admin-mode .resize-handle{display:block;}
+  .zone-el.dragging{opacity:.85; box-shadow:0 10px 22px rgba(0,0,0,.2);}
+
+  /* free text labels */
+  .text-el{
+    position:absolute; transform:translate(-50%,-50%);
+    font-family:'Wix Madefor Display'; font-weight:700; font-size:13px; color:var(--ink);
+    padding:3px 8px; border-radius:6px; white-space:nowrap;
+    z-index:3; user-select:none; -webkit-user-select:none; touch-action:none;
+  }
+  .text-el.admin-mode{cursor:move; background:rgba(255,255,255,.7); outline:1.5px dashed var(--orange-tint-2);}
+  .text-el:not(.admin-mode){pointer-events:none;}
+  .text-el .tdel{
+    position:absolute; top:-9px; right:-9px; width:18px;height:18px;border-radius:50%;
+    background:#fff; border:1.5px solid #E5A98B; color:#C0392B; font-size:11px; line-height:1;
+    display:none; align-items:center;justify-content:center; font-weight:700;
+  }
+  .text-el.admin-mode .tdel{display:flex;}
+
+  /* meeting room — same free/occupied palette, distinct icon, slightly bigger */
+  .desk.type-meeting{ width:96px; height:96px; border-radius:18px; }
+  .desk.type-meeting .icon{ width:24px; height:24px; }
+  .desk.type-meeting .label{ font-size:11px; }
+
+  /* permanent seat — фиолетовая заливка, когда человек на месте;
+     белая с фиолетовой обводкой — когда отмечено «сегодня отсутствует» */
+  .desk.type-permanent.occupied{
+    background: linear-gradient(155deg, var(--perm-red), var(--perm-red-dark));
+    border-color: var(--perm-red-dark);
+  }
+  .desk.type-permanent.occupied .label{ color:#fff; }
+  .desk.type-permanent:not(.occupied){
+    background: #fff;
+    border-color: var(--purple);
+  }
+  .desk.type-permanent:not(.occupied) .label{ color: var(--purple-dark); }
+  .desk.type-permanent:hover{ box-shadow: 0 6px 16px rgba(93,0,210,.32); }
+
+  /* tooltip */
+  .tooltip{
+    position:absolute; transform:translate(-50%,-100%);
+    background: var(--ink); color:#fff; padding:6px 10px; border-radius:8px;
+    font-size:12px; white-space:nowrap; pointer-events:none; z-index:30;
+    margin-top:-10px;
+  }
+  .tooltip::after{
+    content:''; position:absolute; left:50%; top:100%; transform:translateX(-50%);
+    border:5px solid transparent; border-top-color: var(--ink);
+  }
+  .tooltip.multiline{ white-space:pre-line; text-align:left; max-width:220px; line-height:1.5; }
+
+  /* popover */
+  .popover{
+    position:absolute; z-index:40;
+    background:#fff; border:1.5px solid var(--line); border-radius:14px;
+    padding:14px; width:230px;
+    box-shadow: 0 14px 30px -8px rgba(120,60,10,.3);
+    font-size:13px;
+  }
+  .popover h4{margin:0 0 8px; font-size:13.5px; font-family:'Wix Madefor Display'; font-weight:800;}
+  .popover .datehint{font-size:11px; color:var(--ink-soft); margin:-6px 0 10px;}
+  .popover .name-line{display:flex;align-items:center;gap:8px;margin-bottom:10px; padding:8px 10px; background:var(--orange-tint); border-radius:10px;}
+  .popover .name-line .dot{width:8px;height:8px;border-radius:50%;background:var(--orange);flex-shrink:0;}
+  .popover input{
+    width:100%; padding:8px 10px; border-radius:8px; border:1.5px solid var(--line);
+    font-size:13px; margin-bottom:8px; font-family:'Wix Madefor Display';
+  }
+  .popover input:focus{border-color:var(--orange); outline:none;}
+  .popover .row{display:flex; gap:8px; margin-top:2px;}
+  .popover .row .btn{flex:1; padding:8px 10px; font-size:12.5px; text-align:center;}
+  .popover .err{color:#C0392B; font-size:11.5px; margin:-3px 0 6px;}
+  .popover .type-tag{
+    display:inline-block; font-size:10.5px; font-weight:700; color:var(--orange-deep);
+    background:var(--orange-tint); border-radius:999px; padding:2px 9px; margin-bottom:8px;
+    text-transform:uppercase; letter-spacing:.03em;
+  }
+  .popover.wide{width:270px;}
+  .popover .slot-list{max-height:150px; overflow-y:auto; margin-bottom:8px;}
+  .popover .slot-row{
+    display:flex; justify-content:space-between; align-items:center; gap:6px;
+    padding:6px 8px; background:var(--orange-tint); border-radius:8px; margin-bottom:6px; font-size:12px;
+  }
+  .popover .slot-row .t{font-weight:700; color:var(--orange-deep); white-space:nowrap;}
+  .popover .slot-row .n{flex:1; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; margin:0 6px;}
+  .popover .slot-row .rm{background:none; border:none; color:#C0392B; font-size:15px; font-weight:700; cursor:pointer; line-height:1; padding:0 2px;}
+  .popover .empty-slots{font-size:12px; color:var(--ink-soft); margin-bottom:10px;}
+  .popover .time-row{display:flex; gap:6px;}
+  .popover .time-row input{flex:1;}
+  .popover .subhead{font-size:11.5px; font-weight:700; color:var(--ink-soft); text-transform:uppercase; letter-spacing:.03em; margin:2px 0 6px;}
+  .popover .color-row{display:flex; align-items:center; gap:8px; margin-bottom:10px;}
+  .popover .color-row input[type=color]{
+    width:36px; height:32px; padding:2px; border-radius:8px; border:1.5px solid var(--line); background:#fff; cursor:pointer;
+  }
+  .popover .color-row .swnote{font-size:12px; color:var(--ink-soft);}
+  .popover textarea{
+    width:100%; padding:8px 10px; border-radius:8px; border:1.5px solid var(--line);
+    font-size:13px; margin-bottom:8px; font-family:'Wix Madefor Display'; resize:vertical; min-height:52px;
+  }
+  .popover textarea:focus{border-color:var(--orange); outline:none;}
+
+  footer{
+    text-align:center; padding:14px; font-size:11.5px; color:var(--orange);
+  }
+
+  /* guest passes section */
+  #guestWrap{width:100%; max-width:1180px; margin:0 auto; padding:26px 28px 40px;}
+
+  /* who's in the office */
+  #whoWrap{width:100%; max-width:720px; margin:0 auto; padding:26px 28px 40px;}
+  #whoDateBar{
+    display:flex; align-items:center; gap:10px; margin-bottom:20px;
+  }
+  #whoDateLabel{font-size:14px; font-weight:700; color:var(--ink);}
+  .whoRow{
+    display:flex; align-items:center; gap:12px; padding:12px 14px; border-radius:14px;
+    background:var(--bg); border:1.5px solid var(--line); margin-bottom:8px;
+  }
+  .whoRow .wName{font-weight:700; font-size:13.5px; color:var(--ink); flex:1; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+  .whoRow .wPlace{font-size:12px; color:var(--ink-soft); flex-shrink:0;}
+  .whoRow .wTag{
+    flex-shrink:0; font-size:9.5px; font-weight:800; border-radius:5px; padding:2px 7px;
+    text-transform:uppercase; letter-spacing:.03em; background:var(--purple-tint); color:var(--purple-dark);
+  }
+
+  .infoCard{
+    display:flex; align-items:flex-start; gap:16px;
+    background: linear-gradient(135deg, var(--orange), var(--orange-dark));
+    border-radius:20px; padding:20px 24px; margin-bottom:22px;
+    box-shadow: 0 10px 30px -12px rgba(180,60,10,.4);
+  }
+  .infoIcon{
+    width:40px; height:40px; border-radius:12px; flex-shrink:0;
+    background:rgba(255,255,255,.18); display:flex; align-items:center; justify-content:center;
+  }
+  .infoIcon svg{width:22px; height:22px;}
+  .infoBody{color:#fff;}
+  .infoAddr{font-family:'Wix Madefor Display'; font-weight:800; font-size:16px; margin-bottom:10px;}
+  .infoSteps{list-style:none; padding:0; margin:0 0 12px; counter-reset:step;}
+  .infoSteps li{
+    position:relative; padding-left:28px; font-size:13px; line-height:1.5;
+    color:rgba(255,255,255,.95); margin-bottom:7px;
+  }
+  .infoSteps li:last-child{margin-bottom:0;}
+  .infoSteps li::before{
+    counter-increment: step; content: counter(step);
+    position:absolute; left:0; top:0.5px;
+    width:19px; height:19px; border-radius:50%;
+    background:rgba(255,255,255,.25); color:#fff;
+    font-size:10.5px; font-weight:800;
+    display:flex; align-items:center; justify-content:center;
+  }
+  .infoPhone{font-size:13px; margin-top:2px; color:rgba(255,255,255,.92);}
+  .infoPhone a{color:#fff; font-weight:700; text-decoration:underline; text-underline-offset:2px;}
+  @media (max-width: 640px){
+    .infoCard{flex-direction:column; padding:18px;}
+  }
+
+  .guestGrid{display:grid; grid-template-columns: 1fr 1fr; gap:22px; align-items:start;}
+  @media (max-width: 860px){ .guestGrid{grid-template-columns: 1fr;} }
+
+  .guestFormCard, .guestListCard{
+    background:#fff; border:2px solid var(--line); border-radius:20px; padding:24px;
+    box-shadow: 0 10px 30px -14px rgba(180,60,10,.18);
+  }
+  .formNote{
+    display:inline-block; font-size:10.5px; font-weight:800; color:var(--orange-deep);
+    background:var(--orange-tint); border-radius:999px; padding:3px 11px; margin-bottom:10px;
+    text-transform:uppercase; letter-spacing:.03em;
+  }
+  .secTitle{font-size:18px; font-weight:800; margin:0 0 6px;}
+  .secSub{font-size:13px; color:var(--ink-soft); margin:0 0 18px; line-height:1.5;}
+  .fLabel{display:block; font-size:12.5px; font-weight:700; color:var(--ink-soft); margin:14px 0 6px;}
+  .fLabel:first-of-type{margin-top:0;}
+  .fInput{
+    width:100%; padding:11px 13px; border-radius:10px; border:1.5px solid var(--line);
+    font-size:14px; font-family:'Wix Madefor Display'; color:var(--ink);
+  }
+  .fInput:focus{outline:none; border-color:var(--orange);}
+  .successMsg{
+    margin-top:12px; padding:10px 14px; background:#EAF7EC; border:1.5px solid #C9E9CD;
+    color:#2E7D32; border-radius:10px; font-size:13px; text-align:center; font-weight:600;
+  }
+
+  .guestListHead{display:flex; align-items:center; gap:10px; margin-bottom:16px;}
+  .guestCountPill{
+    background:var(--orange-tint); color:var(--orange-deep); font-weight:800; font-size:12.5px;
+    border-radius:999px; padding:3px 11px;
+  }
+  .guestRow{
+    display:flex; align-items:center; gap:14px; padding:13px 14px; border-radius:14px;
+    background:var(--bg); border:1.5px solid var(--line); margin-bottom:10px;
+  }
+  .guestRow.done{opacity:.55;}
+  .guestRow .gDate{
+    flex-shrink:0; width:66px; text-align:center; font-family:'Wix Madefor Display'; font-weight:800;
+    color:var(--orange-deep); font-size:13px; line-height:1.3;
+  }
+  .guestRow .gDate .dow{display:block; font-size:10px; font-weight:600; color:var(--ink-soft); text-transform:uppercase;}
+  .guestRow .gInfo{flex:1; min-width:0;}
+  .guestRow .gName{font-weight:700; font-size:13.5px; color:var(--ink); overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+  .gTypeTag{
+    display:inline-block; font-size:9.5px; font-weight:800; color:var(--orange-deep);
+    background:var(--orange-tint); border-radius:5px; padding:1px 6px; margin-right:6px;
+    text-transform:uppercase; letter-spacing:.03em; vertical-align:middle;
+  }
+  .notifyDot{
+    display:inline-block; font-size:9.5px; font-weight:700; border-radius:5px;
+    padding:1px 6px; margin-left:6px; vertical-align:middle; cursor:help;
+  }
+  .notifyDot.ok{background:#EAF7EC; color:#2E7D32;}
+  .notifyDot.warn{background:#FFF6E5; color:#B8860B;}
+  .notifyDot.bad{background:#FFF1EE; color:#C0392B;}
+  .guestRow .gHost{font-size:12px; color:var(--ink-soft); margin-top:2px;}
+  .guestRow .gActions{display:flex; gap:6px; flex-shrink:0;}
+  .gBtn{
+    width:30px; height:30px; border-radius:9px; display:flex; align-items:center; justify-content:center;
+    font-size:14px; font-weight:700; background:#fff; border:1.5px solid var(--line);
+  }
+  .gBtn.done-btn{color:#2E7D32; border-color:#C9E9CD;}
+  .gBtn.done-btn:hover{background:#EAF7EC;}
+  .gBtn.del-btn{color:#C0392B; border-color:#F2B9AC;}
+  .gBtn.del-btn:hover{background:#FFF1EE;}
+  .guestEmpty{text-align:center; padding:30px 10px; color:var(--ink-soft); font-size:13.5px;}
+
+  @media (max-width: 640px){
+    #mainNav{padding:10px 16px;}
+    #guestWrap{padding:16px;}
+    header{padding:16px;}
+    #dateBar{padding:12px 16px;}
+    main{padding:16px;}
+    #plan{height:60vh;}
+    .stats{width:100%; justify-content:flex-start;}
+
+    /* Схема офиса — не сжимаем места «в лепёшку», а даём прокрутку вбок,
+       как на карте, сохраняя реальные расстояния и размеры мест. */
+    #planScroll{
+      overflow-x:auto; -webkit-overflow-scrolling:touch;
+      border-radius:20px;
+    }
+    #plan{ width:900px; max-width:none; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="brand">
+    <div class="brand-text">
+      <svg class="wordmark" viewBox="0 0 971 144" fill="none" xmlns="http://www.w3.org/2000/svg">
+<path d="M259.657 1.82373H216.799C177.955 1.82373 146.356 33.4869 146.356 72.4097C146.356 111.332 177.955 142.996 216.799 142.996H259.657C298.48 142.996 330.1 111.332 330.1 72.4097C330.1 33.4869 298.48 1.82373 259.657 1.82373ZM259.657 116.56H216.799C192.488 116.56 172.717 96.7496 172.717 72.3885C172.717 48.0274 192.488 28.2167 216.799 28.2167H259.657C283.969 28.2167 303.739 48.0274 303.739 72.3885C303.739 96.7496 283.969 116.56 259.657 116.56Z" fill="#FF5014"/>
+<path d="M0 142.975H26.8888V26.7356H100.437V142.975H127.326V1.21033H0" fill="#FF5014"/>
+<path d="M446.465 7.87698C455.527 11.9195 462.455 17.6976 467.292 25.2113C472.129 32.7461 474.537 41.6778 474.537 52.0276C474.537 62.3774 472.129 71.1609 467.292 78.7381C462.476 86.3364 455.527 92.1356 446.465 96.1782C437.404 100.2 426.779 102.231 414.57 102.231H382.781V142.953H356.61V1.82373H414.57C426.779 1.82373 437.404 3.83442 446.465 7.87698ZM439.326 72.8118C445.219 67.965 448.176 61.044 448.176 52.0487C448.176 43.0535 445.219 36.1114 439.326 31.2857C433.411 26.4389 424.772 24.026 413.366 24.026H382.781V80.0926H413.366C424.772 80.0926 433.411 77.6798 439.326 72.833" fill="#FF5014"/>
+<path d="M490.864 27.0457H540.375V143.264H567.264V27.0457H616.775V1.52051H490.864" fill="#FF5014"/>
+<path d="M752.823 0V16.2549C739.938 6.11674 723.547 0 705.635 0C664.573 0 631.242 32.0441 631.242 71.6019C631.242 111.16 664.573 143.267 705.635 143.267C723.547 143.267 739.938 137.15 752.823 127.012V143.267H779.965V0M705.635 119.859C677.965 119.859 655.617 98.27 655.617 71.6019C655.617 44.9337 677.965 23.4299 705.635 23.4299C727.476 23.4299 746 36.8909 752.823 55.6856C754.682 60.7018 755.653 66.0354 755.653 71.6019C755.653 77.1683 754.682 82.5654 752.823 87.5816C746 106.397 727.476 119.859 705.635 119.859Z" fill="#FF5014"/>
+<path d="M875.082 1.21033L813.256 143.271H842.469L891.515 27.942L940.286 143.271H970.344L908.539 1.21033" fill="#FF5014"/>
+</svg>
+      <div class="sub">Бронирование мест</div>
+    </div>
+  </div>
+
+  <div class="stats" id="stats" style="display:none;">
+    <div class="stat total"><div class="num" id="statTotal">0</div><div class="lbl">Всего мест</div></div>
+    <div class="stat"><div class="num" id="statFree">0</div><div class="lbl">Свободно</div></div>
+    <div class="stat"><div class="num" id="statOcc">0</div><div class="lbl">В офисе</div></div>
+    <div class="stat" id="statMeetingWrap" style="display:none;"><div class="num" id="statMeeting">0/0</div><div class="lbl">Переговорки</div></div>
+  </div>
+
+  <div class="actions">
+    <div class="admin-toggle" id="adminToggle">
+      <span>Режим администратора</span>
+      <span class="switch"></span>
+    </div>
+  </div>
+</header>
+
+<nav id="mainNav">
+  <button class="navtab active" id="navOffice" data-tab="office">Бронирование мест</button>
+  <button class="navtab" id="navWho" data-tab="who">Кто в офисе</button>
+  <button class="navtab" id="navGuests" data-tab="guests">Гостевые пропуска</button>
+</nav>
+
+<div id="officeSection">
+<div id="adminBar">
+  <button class="btn btn-primary" id="addDeskBtn">+ Рабочее место</button>
+  <button class="btn btn-primary" id="addMeetingBtn">+ Переговорка</button>
+  <button class="btn btn-primary" id="addPermanentBtn">+ Постоянное место</button>
+  <button class="btn btn-outline" id="addTextBtn">+ Текст</button>
+  <button class="btn btn-outline" id="addZoneBtn">+ Зона / стена</button>
+  <span class="hint" id="adminHint">Перетаскивайте элементы, чтобы менять расположение. Зону можно менять в размере за оранжевый уголок. Клик — переименовать или удалить.</span>
+</div>
+
+<div id="dateBar">
+  <span class="dateLabel">Дата бронирования:</span>
+  <div id="dateNav">
+    <button class="dnbtn" id="prevDay">‹</button>
+    <input type="date" id="dateInput">
+    <button class="dnbtn" id="nextDay">›</button>
+  </div>
+  <span class="weekday" id="weekdayLabel"></span>
+  <button class="btn btn-ghost" id="todayBtn">Сегодня</button>
+</div>
+
+<main>
+  <div id="planWrap">
+    <div id="planTitleRow">
+      <h2>Схема офиса</h2>
+      <div class="legend">
+        <span><span class="swatch free"></span>свободно</span>
+        <span><span class="swatch occ"></span>занято</span>
+        <span><span class="swatch perm"></span>постоянное место</span>
+      </div>
+    </div>
+    <div id="planScroll">
+      <div id="plan"></div>
+    </div>
+  </div>
+</main>
+
+<footer>Выберите дату, наведите курсор на элемент, чтобы увидеть статус. Переговорку можно забронировать на конкретное время — наведите курсор, чтобы увидеть расписание.</footer>
+</div>
+
+<div id="whoSection" style="display:none;">
+  <main>
+    <div id="whoWrap">
+      <div id="whoDateBar">
+        <button class="dnbtn" id="whoPrevDay">‹</button>
+        <div id="whoDateLabel"></div>
+        <button class="dnbtn" id="whoNextDay">›</button>
+        <button class="btn btn-ghost" id="whoTodayBtn">Сегодня</button>
+      </div>
+
+      <div class="guestListCard">
+        <div class="guestListHead">
+          <h2 class="secTitle" style="margin:0;">В офисе</h2>
+          <span class="guestCountPill" id="whoSummary">0</span>
+        </div>
+        <div id="whoList"></div>
+      </div>
+
+      <div class="guestListCard" id="whoMeetingsCard" style="display:none; margin-top:22px;">
+        <h2 class="secTitle">Переговорки заняты</h2>
+        <div id="whoMeetingsList"></div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<div id="guestSection" style="display:none;">
+  <main>
+    <div id="guestWrap">
+      <div class="infoCard">
+        <div class="infoIcon">
+          <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M12 21s-7-6.2-7-11.5A7 7 0 0 1 19 9.5C19 14.8 12 21 12 21Z" stroke="#fff" stroke-width="1.7" stroke-linejoin="round"/>
+            <circle cx="12" cy="9.5" r="2.4" stroke="#fff" stroke-width="1.7"/>
+          </svg>
+        </div>
+        <div class="infoBody">
+          <div class="infoAddr">Барклай Плаза 6, строение 5, офис 506</div>
+          <ol class="infoSteps">
+            <li>Закажите гостевой пропуск в форме ниже</li>
+            <li>Поднимитесь на 1 этаж</li>
+            <li>Назовите администратору бизнес-центра свою фамилию</li>
+          </ol>
+          <div class="infoPhone">Остались вопросы — звоните: <a href="tel:+79042252615">8&nbsp;904&nbsp;225-26-15</a></div>
+        </div>
+      </div>
+
+      <div class="guestGrid">
+        <div class="guestFormCard">
+          <h2 class="secTitle">Заказать гостевой пропуск</h2>
+          <p class="secSub">Заявка придёт администратору офиса, чтобы подготовить пропуск ко дню визита.</p>
+
+          <label class="fLabel" for="guestDate">Дата посещения</label>
+          <input type="date" id="guestDate" class="fInput">
+
+          <label class="fLabel" for="guestName">ФИО гостя</label>
+          <input type="text" id="guestName" class="fInput" placeholder="Иванов Иван Иванович" autocomplete="off">
+
+          <label class="fLabel" for="guestHost">Кто встречает (необязательно)</label>
+          <input type="text" id="guestHost" class="fInput" placeholder="Ваши имя и фамилия" autocomplete="off">
+
+          <div class="err" id="guestErr" style="display:none;"></div>
+          <button class="btn btn-primary" id="submitGuest" style="width:100%; padding:12px; font-size:14px; margin-top:4px;">Отправить заявку</button>
+          <div class="successMsg" id="guestSuccess" style="display:none;">Заявка отправлена — администратор её увидит и подготовит пропуск.</div>
+        </div>
+
+        <div class="guestFormCard">
+          <div class="formNote">Только для гостей офиса</div>
+          <h2 class="secTitle">Пропуск для автомобиля</h2>
+          <p class="secSub">Чтобы гостя пропустили на парковку бизнес-центра — укажите дату и номер машины.</p>
+
+          <label class="fLabel" for="carDate">Дата посещения</label>
+          <input type="date" id="carDate" class="fInput">
+
+          <label class="fLabel" for="carGuestName">ФИО гостя</label>
+          <input type="text" id="carGuestName" class="fInput" placeholder="Иванов Иван Иванович" autocomplete="off">
+
+          <label class="fLabel" for="carBrand">Марка и модель автомобиля</label>
+          <input type="text" id="carBrand" class="fInput" placeholder="Toyota Camry" autocomplete="off">
+
+          <label class="fLabel" for="carPlate">Гос. номер автомобиля</label>
+          <input type="text" id="carPlate" class="fInput" placeholder="А 123 ВС 197" autocomplete="off">
+
+          <label class="fLabel" for="carHost">Кто встречает (необязательно)</label>
+          <input type="text" id="carHost" class="fInput" placeholder="Ваши имя и фамилия" autocomplete="off">
+
+          <div class="err" id="carErr" style="display:none;"></div>
+          <button class="btn btn-primary" id="submitCar" style="width:100%; padding:12px; font-size:14px; margin-top:4px;">Отправить заявку</button>
+          <div class="successMsg" id="carSuccess" style="display:none;">Заявка отправлена — администратор её увидит и подготовит пропуск на машину.</div>
+        </div>
+      </div>
+
+      <div class="guestListCard" id="notifySettingsCard" style="display:none; margin-top:22px;">
+        <h2 class="secTitle" style="margin-bottom:4px;">Уведомления на email</h2>
+        <p class="secSub">Когда сотрудник отправит заявку — вам придёт письмо. Настройка (5 минут) на <a href="https://www.emailjs.com" target="_blank" rel="noopener" style="color:var(--orange-deep); font-weight:700;">emailjs.com</a>:
+          зарегистрируйтесь бесплатно → <b>Email Services</b> → «Add New Service» → подключите свою почту (Gmail и т.п.) → скопируйте <b>Service ID</b>.
+          Затем <b>Email Templates</b> → «Create New Template» → в теле письма впишите переменные <code>{{subject}}</code> и <code>{{message}}</code> (просто вставьте эти два слова в шаблон куда нужно) → сохраните и скопируйте <b>Template ID</b>.
+          И наконец <b>Account → General</b> → скопируйте <b>Public Key</b>. Вставьте все три значения ниже.</p>
+        <label class="fLabel" for="ejsPublicKey">Public Key</label>
+        <input type="text" id="ejsPublicKey" class="fInput" placeholder="Например: 9aB3xY_z1QpLmN0kR" autocomplete="off">
+        <label class="fLabel" for="ejsServiceId">Service ID</label>
+        <input type="text" id="ejsServiceId" class="fInput" placeholder="Например: service_a1b2c3d" autocomplete="off">
+        <label class="fLabel" for="ejsTemplateId">Template ID</label>
+        <input type="text" id="ejsTemplateId" class="fInput" placeholder="Например: template_x9y8z7w" autocomplete="off">
+        <div class="err" id="tgErr" style="display:none;"></div>
+        <div class="row" style="margin-top:12px;">
+          <button class="btn btn-outline" id="tgTestBtn" style="flex:1;">Отправить тест</button>
+          <button class="btn btn-primary" id="tgSaveBtn" style="flex:1;">Сохранить</button>
+        </div>
+        <div class="successMsg" id="tgSuccess" style="display:none;">Готово — уведомления настроены.</div>
+      </div>
+
+      <div class="guestListCard" id="adminGuestListCard" style="display:none; margin-top:22px;">
+        <div class="guestListHead">
+          <h2 class="secTitle" style="margin:0;">Заявки на пропуска</h2>
+          <span class="guestCountPill" id="guestCountPill">0</span>
+        </div>
+        <div id="guestList"></div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<div id="adminAuthOverlay" style="display:none; position:fixed; inset:0; z-index:2000; background:rgba(0,0,0,.4); align-items:center; justify-content:center;">
+  <div style="background:#fff; border-radius:20px; padding:28px; width:280px; box-shadow:0 20px 50px rgba(0,0,0,.3);">
+    <h3 style="margin:0 0 6px; font-size:16px; font-weight:800;">Вход для администратора</h3>
+    <p style="margin:0 0 14px; font-size:12.5px; color:var(--ink-soft);">Введите пароль, чтобы получить доступ к редактированию.</p>
+    <input type="password" id="adminPasswordInput" class="fInput" placeholder="Пароль" autocomplete="off" style="margin-bottom:10px;">
+    <div id="adminAuthErr" style="display:none; color:#C0392B; font-size:12px; margin-bottom:10px;">Неверный пароль</div>
+    <div style="display:flex; gap:8px;">
+      <button class="btn btn-ghost" id="adminAuthCancel" style="flex:1;">Отмена</button>
+      <button class="btn btn-primary" id="adminAuthSubmit" style="flex:1;">Войти</button>
+    </div>
+  </div>
+</div>
+
+<!-- SDK EmailJS для отправки уведомлений на email без своего сервера -->
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js" defer></script>
+
+<!--
+  ЗАМЕНА ХРАНИЛИЩА ДЛЯ ВНЕШНЕГО ХОСТИНГА (Netlify, Vercel и т.п.)
+  ==================================================================
+  Внутри превью claude.ai данные сохраняет встроенный window.storage —
+  это служебный API Claude, которого нет ни на одном другом хостинге.
+  Ниже — бесплатная замена на Firebase Firestore. Она включается САМА,
+  только если window.storage отсутствует, поэтому один и тот же файл
+  одинаково работает и в Claude, и на вашем сайте.
+
+  Как включить (5 минут, бесплатно):
+  1. Откройте https://console.firebase.google.com → «Add project» →
+     придумайте любое имя → создайте проект (Google Analytics не нужен).
+  2. В меню слева: Build → Firestore Database → Create database →
+     выберите «Start in test mode» → любой регион (например eur3).
+  3. Слева: ⚙️ Project settings → вкладка General → внизу раздел
+     «Your apps» → нажмите «</>» (Web) → зарегистрируйте приложение
+     (имя любое, Hosting не подключать) → скопируется объект firebaseConfig.
+  4. Вставьте скопированные значения вместо ВСЕХ строк "ВАШ_..." ниже.
+  5. Через 30 дней тестовый режим Firestore закроет доступ — тогда в
+     Firestore Database → Rules замените содержимое на:
+       rules_version = '2';
+       service cloud.firestore {
+         match /databases/{database}/documents {
+           match /{document=**} { allow read, write: if true; }
+         }
+       }
+     (открытые правила: заявки не защищены авторизацией, что нормально
+     для внутреннего офисного инструмента без секретных данных).
+-->
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js" defer></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js" defer></script>
+<script>
+document.addEventListener('DOMContentLoaded', function setupExternalStorage(){
+  if(window.storage) return; // мы внутри Claude — там уже есть нативное хранилище
+
+  const FIREBASE_CONFIG = {
+    apiKey: "AIzaSyBYXcIVjmdVmUykLnEDWiNN0rBZ_YAQSUc",
+    authDomain: "ofice-1a976.firebaseapp.com",
+    projectId: "ofice-1a976",
+    storageBucket: "ofice-1a976.firebasestorage.app",
+    messagingSenderId: "427642888277",
+    appId: "1:427642888277:web:0929e6b7822abe4dd7b4dc"
+  };
+
+  if(!FIREBASE_CONFIG.apiKey || FIREBASE_CONFIG.apiKey.indexOf('ВАШ_') === 0){
+    console.warn('Firebase не настроен — вставьте свои ключи в FIREBASE_CONFIG в HTML-файле, иначе данные не будут сохраняться между визитами.');
+    window.storage = {
+      async get(){ throw new Error('storage-not-configured'); },
+      async set(){ return null; },
+      async delete(){ return null; },
+      async list(){ return { keys: [] }; }
+    };
+    window.dispatchEvent(new Event('app-storage-ready'));
+    return;
+  }
+
+  try{
+    firebase.initializeApp(FIREBASE_CONFIG);
+    const db = firebase.firestore();
+    const col = db.collection('office_kv');
+    window.__usingExternalStorage = true;
+
+    window.storage = {
+      async get(key){
+        const doc = await col.doc(key).get();
+        if(!doc.exists) return null;
+        return { key, value: doc.data().value, shared: true };
+      },
+      async set(key, value){
+        await col.doc(key).set({ value });
+        return { key, value, shared: true };
+      },
+      async delete(key){
+        await col.doc(key).delete();
+        return { key, deleted: true, shared: true };
+      },
+      async list(prefix){
+        const snap = await col.get();
+        const keys = [];
+        snap.forEach(d=>{ if(!prefix || d.id.indexOf(prefix) === 0) keys.push(d.id); });
+        return { keys };
+      }
+    };
+    // Основной скрипт сайта уже мог запуститься и отрисоваться раньше, чем
+    // подключилась база (кнопки не должны ждать сеть) — сообщаем ему, что
+    // теперь можно подтянуть реальные данные.
+    window.dispatchEvent(new Event('app-storage-ready'));
+  }catch(e){
+    // Firebase SDK не подгрузился (сеть/блокировка) — работаем без сохранения,
+    // а не роняем весь скрипт молча.
+    console.error('Не удалось инициализировать Firebase', e);
+    window.storage = {
+      async get(){ throw new Error('firebase-init-failed'); },
+      async set(){ return null; },
+      async delete(){ return null; },
+      async list(){ return { keys: [] }; }
+    };
+    window.dispatchEvent(new Event('app-storage-ready'));
+  }
+});
+</script>
+
+<script>window.__preMainScriptRan = true;</script>
+
+<script>
+(function(){
+try{
+  window.__appScriptRan = true;
+  const plan = document.getElementById('plan');
+  const adminToggleEl = document.getElementById('adminToggle');
+  const adminBar = document.getElementById('adminBar');
+  const addDeskBtn = document.getElementById('addDeskBtn');
+  const addMeetingBtn = document.getElementById('addMeetingBtn');
+  const addPermanentBtn = document.getElementById('addPermanentBtn');
+  const addTextBtn = document.getElementById('addTextBtn');
+  const addZoneBtn = document.getElementById('addZoneBtn');
+  const statTotal = document.getElementById('statTotal');
+  const statFree = document.getElementById('statFree');
+  const statOcc = document.getElementById('statOcc');
+  const statMeetingWrap = document.getElementById('statMeetingWrap');
+  const statMeeting = document.getElementById('statMeeting');
+  const dateInput = document.getElementById('dateInput');
+  const prevDayBtn = document.getElementById('prevDay');
+  const nextDayBtn = document.getElementById('nextDay');
+  const todayBtn = document.getElementById('todayBtn');
+  const weekdayLabel = document.getElementById('weekdayLabel');
+
+  const navOffice = document.getElementById('navOffice');
+  const navWho = document.getElementById('navWho');
+  const navGuests = document.getElementById('navGuests');
+  const officeSection = document.getElementById('officeSection');
+  const whoSection = document.getElementById('whoSection');
+  const guestSection = document.getElementById('guestSection');
+  const whoPrevDay = document.getElementById('whoPrevDay');
+  const whoNextDay = document.getElementById('whoNextDay');
+  const whoTodayBtn = document.getElementById('whoTodayBtn');
+  const whoDateLabel = document.getElementById('whoDateLabel');
+  const whoSummary = document.getElementById('whoSummary');
+  const whoListEl = document.getElementById('whoList');
+  const whoMeetingsCard = document.getElementById('whoMeetingsCard');
+  const whoMeetingsList = document.getElementById('whoMeetingsList');
+  const guestDateInput = document.getElementById('guestDate');
+  const guestNameInput = document.getElementById('guestName');
+  const guestHostInput = document.getElementById('guestHost');
+  const guestErr = document.getElementById('guestErr');
+  const guestSuccess = document.getElementById('guestSuccess');
+  const submitGuestBtn = document.getElementById('submitGuest');
+  const carDateInput = document.getElementById('carDate');
+  const carGuestNameInput = document.getElementById('carGuestName');
+  const carBrandInput = document.getElementById('carBrand');
+  const carPlateInput = document.getElementById('carPlate');
+  const carHostInput = document.getElementById('carHost');
+  const carErr = document.getElementById('carErr');
+  const carSuccess = document.getElementById('carSuccess');
+  const submitCarBtn = document.getElementById('submitCar');
+  const adminGuestListCard = document.getElementById('adminGuestListCard');
+  const guestListEl = document.getElementById('guestList');
+  const guestCountPill = document.getElementById('guestCountPill');
+  const notifySettingsCard = document.getElementById('notifySettingsCard');
+  const ejsPublicKeyInput = document.getElementById('ejsPublicKey');
+  const ejsServiceIdInput = document.getElementById('ejsServiceId');
+  const ejsTemplateIdInput = document.getElementById('ejsTemplateId');
+  const tgErr = document.getElementById('tgErr');
+  const tgSuccess = document.getElementById('tgSuccess');
+  const tgTestBtn = document.getElementById('tgTestBtn');
+  const tgSaveBtn = document.getElementById('tgSaveBtn');
+
+  const LAYOUT_KEY = 'office-desks-layout-v2';    // {id,x,y,label,type,owner?}[] — расположение, общее для всех дат
+  const BOOKINGS_KEY = 'office-bookings-v2';       // { "YYYY-MM-DD": { itemId: "Имя Фамилия" (desk) | [{start,end,name}] (meeting) } }
+  const GUEST_KEY = 'office-guest-passes-v1';      // [{id, type, visitDate, guestName, hostName, carBrand?, carPlate?, createdAt, status}]
+  const NOTIFY_KEY = 'office-notify-settings-v3';  // { publicKey, serviceId, templateId }
+
+  let guestPasses = [];
+  let notifySettings = { publicKey: '', serviceId: '', templateId: '' };
+  let activeTab = 'office';
+
+  let layout = [];
+  let bookingsByDate = {};
+  let currentDate = todayISO();
+  let isAdmin = false;
+  let placingMode = false;
+  let activePopover = null;
+  let activeTooltip = null;
+  let suppressSyncUntil = 0;   // не даём фоновой синхронизации затереть свежие локальные изменения
+  let initialLoadDone = false;
+  let pendingType = 'desk';    // тип элемента, который добавляем в режиме размещения
+
+  // Пароль для входа в режим администратора. Смените на свой прямо здесь —
+  // достаточно вписать новое слово между кавычками и сохранить файл.
+  const ADMIN_PASSWORD = 'portal2026';
+  const ADMIN_SESSION_KEY = 'office-admin-unlocked';
+
+  const TYPE_LABELS = { desk: 'Рабочее место', meeting: 'Переговорка', permanent: 'Постоянное место', zone: 'Зона / стена', text: 'Текст' };
+  const SHAPE_TYPES = ['zone', 'text']; // структурные элементы — не бронируются, не считаются местами
+
+  const WEEKDAYS = ['Воскресенье','Понедельник','Вторник','Среда','Четверг','Пятница','Суббота'];
+
+  function todayISO(){
+    return formatLocalISO(new Date());
+  }
+
+  // Локальная дата в формате YYYY-MM-DD (в отличие от toISOString не съезжает
+  // на день назад/вперёд из-за часового пояса пользователя)
+  function formatLocalISO(d){
+    const yyyy = d.getFullYear();
+    const mm = String(d.getMonth() + 1).padStart(2, '0');
+    const dd = String(d.getDate()).padStart(2, '0');
+    return `${yyyy}-${mm}-${dd}`;
+  }
+
+  function fmtWeekday(iso){
+    const d = new Date(iso + 'T00:00:00');
+    return WEEKDAYS[d.getDay()];
+  }
+
+  function itemIcon(type, occupied){
+    const c = occupied ? '#fff' : (type === 'permanent' ? '#5D00D2' : '#FF5014');
+    if(type === 'meeting'){
+      // часы — переговорка бронируется по времени
+      return `<svg class="icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="12" cy="12" r="8" stroke="${c}" stroke-width="1.6"/>
+        <path d="M12 8v4l3 2" stroke="${c}" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>`;
+    }
+    if(type === 'permanent'){
+      // булавка — место закреплено навсегда
+      return `<svg class="icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M12 21s-6-5.2-6-10a6 6 0 1 1 12 0c0 4.8-6 10-6 10Z" stroke="${c}" stroke-width="1.6" stroke-linejoin="round"/>
+        <circle cx="12" cy="11" r="2.2" stroke="${c}" stroke-width="1.6"/>
+      </svg>`;
+    }
+    return `<svg class="icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <rect x="3" y="9" width="18" height="3" rx="1" stroke="${c}" stroke-width="1.6"/>
+      <path d="M5 12v6M19 12v6" stroke="${c}" stroke-width="1.6" stroke-linecap="round"/>
+    </svg>`;
+  }
+
+  function uid(){ return 'd_' + Date.now().toString(36) + '_' + Math.random().toString(36).slice(2,7); }
+  function itemType(item){ return item.type || 'desk'; }
+
+  function timeToMin(t){ const p = t.split(':').map(Number); return p[0]*60 + p[1]; }
+  function slotsOverlap(aStart,aEnd,bStart,bEnd){
+    return timeToMin(aStart) < timeToMin(bEnd) && timeToMin(bStart) < timeToMin(aEnd);
+  }
+  function meetingSlots(item){
+    const day = bookingsForCurrentDate();
+    if(!Array.isArray(day[item.id])) day[item.id] = [];
+    return day[item.id];
+  }
+
+  async function loadLayout(){
+    try{
+      const res = await window.storage.get(LAYOUT_KEY, true);
+      const fetched = (res && res.value) ? JSON.parse(res.value) : [];
+      // Если это самая первая загрузка — берём то, что пришло (даже пустой массив).
+      // При последующих фоновых опросах пустой/отсутствующий ответ не должен стирать
+      // уже отрисованные локально места (защита от гонки с сохранением).
+      if(!initialLoadDone || fetched.length > 0 || layout.length === 0){
+        layout = fetched;
+      }
+    }catch(e){
+      console.error('Ошибка загрузки схемы', e);
+      // не затираем локальное состояние при сбое сети/хранилища
+    }
+  }
+  async function saveLayout(){
+    suppressSyncUntil = Date.now() + 6000;
+    try{
+      const res = await window.storage.set(LAYOUT_KEY, JSON.stringify(layout), true);
+      if(!res){
+        console.error('Схема не сохранилась: хранилище вернуло пустой результат');
+        showSaveWarning();
+      }
+    }catch(e){
+      console.error('Ошибка сохранения схемы', e);
+      showSaveWarning();
+    }
+  }
+
+  async function loadBookings(){
+    try{
+      const res = await window.storage.get(BOOKINGS_KEY, true);
+      const fetched = (res && res.value) ? JSON.parse(res.value) : {};
+      if(!initialLoadDone || Object.keys(fetched).length > 0 || Object.keys(bookingsByDate).length === 0){
+        bookingsByDate = fetched;
+      }
+    }catch(e){
+      console.error('Ошибка загрузки брони', e);
+    }
+  }
+  async function saveBookings(){
+    suppressSyncUntil = Date.now() + 6000;
+    try{
+      const res = await window.storage.set(BOOKINGS_KEY, JSON.stringify(bookingsByDate), true);
+      if(!res){
+        console.error('Бронь не сохранилась: хранилище вернуло пустой результат');
+        showSaveWarning();
+      }
+    }catch(e){
+      console.error('Ошибка сохранения брони', e);
+      showSaveWarning();
+    }
+  }
+
+  async function loadGuestPasses(){
+    try{
+      const res = await window.storage.get(GUEST_KEY, true);
+      const fetched = (res && res.value) ? JSON.parse(res.value) : [];
+      if(!initialLoadDone || fetched.length > 0 || guestPasses.length === 0){
+        guestPasses = fetched;
+      }
+    }catch(e){
+      console.error('Ошибка загрузки заявок на пропуска', e);
+    }
+  }
+  async function saveGuestPasses(){
+    suppressSyncUntil = Date.now() + 6000;
+    try{
+      const res = await window.storage.set(GUEST_KEY, JSON.stringify(guestPasses), true);
+      if(!res){
+        console.error('Заявка не сохранилась: хранилище вернуло пустой результат');
+        showSaveWarning();
+      }
+    }catch(e){
+      console.error('Ошибка сохранения заявки', e);
+      showSaveWarning();
+    }
+  }
+
+  async function loadNotifySettings(){
+    try{
+      const res = await window.storage.get(NOTIFY_KEY, true);
+      if(res && res.value) notifySettings = JSON.parse(res.value);
+    }catch(e){
+      // настройки ещё не заданы — используем значения по умолчанию
+    }
+  }
+  async function saveNotifySettings(){
+    try{
+      await window.storage.set(NOTIFY_KEY, JSON.stringify(notifySettings), true);
+    }catch(e){
+      console.error('Ошибка сохранения настроек уведомлений', e);
+    }
+  }
+
+  // Отправляет письмо через EmailJS — рассчитан именно на вызов из браузера
+  // (fetch), CORS настроен на их стороне правильно, поэтому обходные пути
+  // с формой/iframe тут не нужны, а результат честно подтверждает доставку.
+  async function sendEmailNotification(subject, fields){
+    const { publicKey, serviceId, templateId } = notifySettings;
+    if(!publicKey || !serviceId || !templateId) return { ok:false, skipped:true };
+    const message = Object.entries(fields).map(([k,v])=>`${k}: ${v}`).join('\n');
+    try{
+      emailjs.init({ publicKey });
+      await emailjs.send(serviceId, templateId, { subject, message });
+      return { ok:true };
+    }catch(e){
+      console.error('Ошибка отправки через EmailJS', e);
+      const text = (e && (e.text || e.message)) || 'неизвестная ошибка';
+      return { ok:false, error: text };
+    }
+  }
+
+  let warnEl = null;
+  function showSaveWarning(){
+    if(warnEl) return;
+    warnEl = document.createElement('div');
+    warnEl.style.cssText = 'position:fixed;bottom:16px;left:50%;transform:translateX(-50%);max-width:90vw;background:#C0392B;color:#fff;padding:10px 18px;border-radius:10px;font-size:13px;z-index:999;box-shadow:0 8px 20px rgba(0,0,0,.25); text-align:center;';
+    warnEl.textContent = window.__usingExternalStorage
+      ? 'Не удалось сохранить в Firestore. Обычно причина — правила доступа (Rules) не разрешают запись. Проверьте Firestore Database → Rules.'
+      : 'Не удалось сохранить изменение. Проверьте соединение и попробуйте ещё раз.';
+    document.body.appendChild(warnEl);
+    setTimeout(()=>{ if(warnEl){ warnEl.remove(); warnEl = null; } }, 6000);
+  }
+
+  function bookingsForCurrentDate(){
+    if(!bookingsByDate[currentDate]) bookingsByDate[currentDate] = {};
+    return bookingsByDate[currentDate];
+  }
+
+  let outsideCloserAttached = false;
+  function closePopovers(){
+    document.querySelectorAll('.popover').forEach(p=>p.remove());
+    activePopover = null;
+    if(outsideCloserAttached){
+      document.removeEventListener('click', outsideCloser);
+      outsideCloserAttached = false;
+    }
+  }
+  function closeTooltip(){
+    if(activeTooltip){ activeTooltip.remove(); activeTooltip=null; }
+  }
+
+  // Попап/подсказка «приклеены» к месту на схеме координатами на момент
+  // открытия. При прокрутке страницы место уезжает вместе с ней — чтобы
+  // попап не отставал и не «улетал» в сторону, пересчитываем его позицию
+  // на каждую прокрутку, а не закрываем.
+  let scrollRepositionQueued = false;
+  function repositionOnScroll(){
+    if(scrollRepositionQueued) return;
+    scrollRepositionQueued = true;
+    requestAnimationFrame(()=>{
+      scrollRepositionQueued = false;
+      if(activePopover && activePopover.__anchorEl){
+        if(activePopover.__anchorEl.isConnected){
+          positionNearElement(activePopover.__anchorEl, activePopover, activePopover.__posOpts);
+        } else {
+          closePopovers();
+        }
+      }
+      if(activeTooltip && activeTooltip.__anchorEl){
+        if(activeTooltip.__anchorEl.isConnected){
+          positionNearElement(activeTooltip.__anchorEl, activeTooltip, activeTooltip.__posOpts);
+        } else {
+          closeTooltip();
+        }
+      }
+    });
+  }
+  window.addEventListener('scroll', repositionOnScroll, true);
+
+  function updateStats(){
+    const dayBookings = bookingsForCurrentDate();
+    const seats = layout.filter(d => !SHAPE_TYPES.includes(itemType(d)) && itemType(d) !== 'meeting');
+    const occSeats = seats.filter(d => (itemType(d) === 'permanent' && dayBookings[d.id] !== 'absent') || !!dayBookings[d.id]).length;
+    statTotal.textContent = seats.length;
+    statFree.textContent = seats.length - occSeats;
+    statOcc.textContent = occSeats;
+
+    const meetings = layout.filter(d => itemType(d) === 'meeting');
+    if(meetings.length > 0){
+      const bookedMeetings = meetings.filter(d => Array.isArray(dayBookings[d.id]) && dayBookings[d.id].length > 0).length;
+      statMeeting.textContent = `${bookedMeetings}/${meetings.length}`;
+      statMeetingWrap.style.display = '';
+    } else {
+      statMeetingWrap.style.display = 'none';
+    }
+  }
+
+  function refreshDateUI(){
+    dateInput.value = currentDate;
+    weekdayLabel.textContent = fmtWeekday(currentDate);
+    const isToday = currentDate === todayISO();
+    todayBtn.classList.toggle('is-today', isToday);
+    todayBtn.textContent = isToday ? 'Сегодня ✓' : 'Сегодня';
+  }
+
+  function render(){
+    plan.querySelectorAll('.desk, .zone-el, .text-el, .empty-msg').forEach(el=>el.remove());
+    closePopovers();
+    closeTooltip();
+    const dayBookings = bookingsForCurrentDate();
+
+    if(layout.length === 0){
+      const msg = document.createElement('div');
+      msg.className = 'empty-msg';
+      msg.innerHTML = isAdmin
+        ? `<div><b>Пока нет элементов</b></div><div>Нажмите одну из кнопок выше и кликните по схеме</div>`
+        : `<div><b>Схема ещё не настроена</b></div><div>Обратитесь к администратору</div>`;
+      plan.appendChild(msg);
+    }
+
+    // сначала зоны/стены (нижний слой), затем места, затем текст — порядок задаёт z-index в CSS
+    layout.forEach(item=>{
+      const type = itemType(item);
+      if(type === 'zone'){
+        renderZone(item);
+      } else if(type === 'text'){
+        renderText(item);
+      } else {
+        renderSeat(item);
+      }
+    });
+
+    updateStats();
+  }
+
+  function renderSeat(desk){
+    const el = buildItemElement(desk);
+    plan.appendChild(el);
+
+    el.querySelector('.del').addEventListener('click', (e)=>{
+      e.stopPropagation();
+      if(confirm(`Удалить «${desk.label}»? Элемент будет удалён из схемы на все даты.`)){
+        layout = layout.filter(d=>d.id !== desk.id);
+        Object.values(bookingsByDate).forEach(day=>{ delete day[desk.id]; });
+        saveLayout(); saveBookings();
+        updateStats(); render();
+      }
+    });
+
+    el.addEventListener('mouseenter', ()=>{
+      if(isAdmin) return;
+      closeTooltip();
+      showTooltip(desk, el);
+    });
+    el.addEventListener('mouseleave', closeTooltip);
+
+    setupPointer(el, desk);
+  }
+
+  function renderZone(item){
+    const el = document.createElement('div');
+    el.className = 'zone-el' + (isAdmin ? ' admin-mode' : '');
+    el.style.left = item.x + '%';
+    el.style.top = item.y + '%';
+    el.style.width = item.w + '%';
+    el.style.height = item.h + '%';
+    el.style.background = hexToRgba(item.color || '#D9D3C8', 0.55);
+    el.style.border = '2px solid ' + hexToRgba(item.color || '#D9D3C8', 0.9);
+    el.dataset.id = item.id;
+    el.innerHTML = `
+      ${item.label ? `<div class="zlabel">${escapeHtml(item.label)}</div>` : ''}
+      <button class="zdel" title="Удалить">×</button>
+      <div class="resize-handle" title="Изменить размер"></div>
+    `;
+    plan.appendChild(el);
+
+    el.querySelector('.zdel').addEventListener('click', (e)=>{
+      e.stopPropagation();
+      if(confirm(`Удалить зону «${item.label || 'без названия'}»?`)){
+        layout = layout.filter(d=>d.id !== item.id);
+        saveLayout();
+        render();
+      }
+    });
+
+    setupZonePointer(el, item);
+  }
+
+  function renderText(item){
+    const el = document.createElement('div');
+    el.className = 'text-el' + (isAdmin ? ' admin-mode' : '');
+    el.style.left = item.x + '%';
+    el.style.top = item.y + '%';
+    el.dataset.id = item.id;
+    el.innerHTML = `${escapeHtml(item.text || '')}<button class="tdel" title="Удалить">×</button>`;
+    plan.appendChild(el);
+
+    el.querySelector('.tdel').addEventListener('click', (e)=>{
+      e.stopPropagation();
+      if(confirm(`Удалить текст «${item.text}»?`)){
+        layout = layout.filter(d=>d.id !== item.id);
+        saveLayout();
+        render();
+      }
+    });
+
+    setupTextPointer(el, item);
+  }
+
+  function hexToRgba(hex, alpha){
+    const h = hex.replace('#','');
+    const bigint = parseInt(h.length===3 ? h.split('').map(c=>c+c).join('') : h, 16);
+    const r = (bigint >> 16) & 255, g = (bigint >> 8) & 255, b = bigint & 255;
+    return `rgba(${r},${g},${b},${alpha})`;
+  }
+
+  // Собирает статус элемента (занято/название/подсказка) в зависимости от типа
+  function itemStatus(item){
+    const type = itemType(item);
+    const dayBookings = bookingsForCurrentDate();
+    if(type === 'permanent'){
+      const isAbsent = dayBookings[item.id] === 'absent';
+      return {
+        occupied: !isAbsent,
+        absent: isAbsent,
+        tooltip: isAbsent
+          ? (item.owner ? `${item.owner} — сегодня отсутствует` : 'Постоянное место · сегодня свободно')
+          : (item.owner ? `Постоянное место · ${item.owner}` : 'Постоянное место · закреплено'),
+        multiline: false
+      };
+    }
+    if(type === 'meeting'){
+      const slots = Array.isArray(dayBookings[item.id]) ? dayBookings[item.id].slice().sort((a,b)=>timeToMin(a.start)-timeToMin(b.start)) : [];
+      const occupied = slots.length > 0;
+      const tooltip = occupied
+        ? slots.map(s=>`${s.start}–${s.end} · ${s.name}`).join('\n')
+        : 'Переговорка свободна весь день';
+      return { occupied, tooltip, multiline: true };
+    }
+    const bookedBy = dayBookings[item.id] || null;
+    return {
+      occupied: !!bookedBy,
+      tooltip: bookedBy ? `Занято · ${bookedBy}` : 'Свободно · нажмите, чтобы забронировать',
+      multiline: false
+    };
+  }
+
+  function buildItemElement(item){
+    const type = itemType(item);
+    const status = itemStatus(item);
+    const el = document.createElement('div');
+    el.className = 'desk type-' + type + (status.occupied ? ' occupied' : '') + (isAdmin ? ' admin-mode':'');
+    el.style.left = item.x + '%';
+    el.style.top = item.y + '%';
+    el.dataset.id = item.id;
+    el.innerHTML = `${itemIcon(type, status.occupied)}<div class="label">${escapeHtml(item.label || '')}</div>
+      <button class="del" title="Удалить">×</button>`;
+    return el;
+  }
+
+  function refreshItemVisual(item, el){
+    const type = itemType(item);
+    const status = itemStatus(item);
+    el.className = 'desk type-' + type + (status.occupied ? ' occupied' : '') + (isAdmin ? ' admin-mode':'');
+    const iconEl = el.querySelector('.icon');
+    if(iconEl) iconEl.outerHTML = itemIcon(type, status.occupied);
+  }
+
+  function showTooltip(item, el){
+    const status = itemStatus(item);
+    const t = document.createElement('div');
+    t.className = 'tooltip' + (status.multiline ? ' multiline' : '');
+    t.textContent = status.tooltip;
+    document.body.appendChild(t);
+    positionNearElement(el, t, { estHeight: status.multiline ? 90 : 40, gap: 12, preferAbove: true });
+    activeTooltip = t;
+  }
+
+  function escapeHtml(str){
+    const d = document.createElement('div');
+    d.textContent = str;
+    return d.innerHTML;
+  }
+
+  function setupPointer(el, desk){
+    let startX, startY, moved, dragging=false;
+
+    el.addEventListener('pointerdown', (e)=>{
+      if(e.target.classList.contains('del')) return;
+      if(placingMode) return;
+      e.preventDefault();
+      startX = e.clientX; startY = e.clientY; moved = false; dragging = isAdmin;
+      el.setPointerCapture(e.pointerId);
+
+      const onMove = (ev)=>{
+        const dx = ev.clientX - startX, dy = ev.clientY - startY;
+        if(Math.abs(dx) > 4 || Math.abs(dy) > 4) moved = true;
+        if(!isAdmin || !moved) return;
+        el.classList.add('dragging');
+        const rect = plan.getBoundingClientRect();
+        let xPct = ((ev.clientX - rect.left) / rect.width) * 100;
+        let yPct = ((ev.clientY - rect.top) / rect.height) * 100;
+        xPct = Math.max(4, Math.min(96, xPct));
+        yPct = Math.max(6, Math.min(94, yPct));
+        el.style.left = xPct + '%';
+        el.style.top = yPct + '%';
+        desk._newX = xPct; desk._newY = yPct;
+      };
+      const onUp = ()=>{
+        el.classList.remove('dragging');
+        document.removeEventListener('pointermove', onMove);
+        document.removeEventListener('pointerup', onUp);
+        if(isAdmin && moved && desk._newX !== undefined){
+          desk.x = desk._newX; desk.y = desk._newY;
+          delete desk._newX; delete desk._newY;
+          saveLayout();
+        } else if(!moved){
+          handleClick(desk, el);
+        }
+      };
+      document.addEventListener('pointermove', onMove);
+      document.addEventListener('pointerup', onUp);
+    });
+  }
+
+  function handleClick(desk, el){
+    closeTooltip();
+    const type = itemType(desk);
+    if(isAdmin){
+      openEditPopover(desk, el);
+      return;
+    }
+    if(type === 'permanent'){
+      openPermanentInfoPopover(desk, el);
+      return;
+    }
+    if(type === 'meeting'){
+      openMeetingPopover(desk, el);
+      return;
+    }
+    const bookedBy = bookingsForCurrentDate()[desk.id] || null;
+    if(bookedBy){
+      openOccupiedPopover(desk, el, bookedBy);
+    } else {
+      openBookPopover(desk, el);
+    }
+  }
+
+  function positionPopoverNear(pop, desk, el){
+    positionNearElement(el, pop, { estHeight: pop.offsetHeight || 220 });
+  }
+
+  // Позиционирует всплывающий элемент (поповер/тултип) относительно экрана,
+  // используя реальные координаты элемента на схеме — так он никогда не
+  // обрезается контейнером схемы (overflow:hidden), даже у самого края.
+  function positionNearElement(el, node, opts = {}){
+    // запоминаем, к какому элементу и с какими опциями привязан этот узел —
+    // понадобится, чтобы пересчитать позицию при прокрутке страницы
+    node.__anchorEl = el;
+    node.__posOpts = opts;
+    const rect = el.getBoundingClientRect();
+    const centerX = rect.left + rect.width / 2;
+    const estHeight = opts.estHeight || 60;
+    const gap = opts.gap || 10;
+    let top, placeAbove;
+    if(opts.preferAbove){
+      // подсказка предпочтительно сверху; снизу — только если сверху места нет
+      if(rect.top - estHeight - gap > 0){
+        top = rect.top - gap;
+        placeAbove = true;
+      } else {
+        top = rect.bottom + gap;
+        placeAbove = false;
+      }
+    } else if(rect.bottom + estHeight + 12 > window.innerHeight && rect.top - estHeight - 12 > 0){
+      top = rect.top - gap;
+      placeAbove = true;
+    } else {
+      top = rect.bottom + gap;
+      placeAbove = false;
+    }
+    node.style.position = 'fixed';
+    node.style.left = centerX + 'px';
+    node.style.top = top + 'px';
+    node.style.transform = placeAbove ? 'translate(-50%, -100%)' : 'translate(-50%, 0)';
+    node.style.margin = '0';
+    // после того как элемент реально отрисован — подвинуть по горизонтали,
+    // если он вылезает за пределы окна
+    requestAnimationFrame(()=>{
+      const r = node.getBoundingClientRect();
+      const margin = 10;
+      let dx = 0;
+      if(r.left < margin) dx = margin - r.left;
+      else if(r.right > window.innerWidth - margin) dx = (window.innerWidth - margin) - r.right;
+      if(dx !== 0){
+        node.style.left = (centerX + dx) + 'px';
+      }
+    });
+  }
+
+  function niceDate(iso){
+    const d = new Date(iso + 'T00:00:00');
+    return d.toLocaleDateString('ru-RU', { day:'numeric', month:'long' });
+  }
+
+  function openBookPopover(desk, el){
+    closePopovers();
+    const pop = document.createElement('div');
+    pop.className = 'popover';
+    pop.innerHTML = `
+      <h4>Забронировать «${escapeHtml(desk.label)}»</h4>
+      <div class="datehint">на ${niceDate(currentDate)}${currentDate===todayISO() ? ' (сегодня)':''}</div>
+      <input type="text" id="fname" placeholder="Имя" autocomplete="off">
+      <input type="text" id="lname" placeholder="Фамилия" autocomplete="off">
+      <div class="err" id="bookErr" style="display:none;">Введите имя и фамилию</div>
+      <div class="row">
+        <button class="btn btn-ghost" id="cancelBook">Отмена</button>
+        <button class="btn btn-primary" id="confirmBook">Забронировать</button>
+      </div>
+    `;
+    document.body.appendChild(pop);
+    positionPopoverNear(pop, desk, el);
+    activePopover = pop;
+    pop.querySelector('#fname').focus();
+
+    pop.querySelector('#cancelBook').addEventListener('click', closePopovers);
+    pop.querySelector('#confirmBook').addEventListener('click', ()=>{
+      const fn = pop.querySelector('#fname').value.trim();
+      const ln = pop.querySelector('#lname').value.trim();
+      if(!fn || !ln){
+        pop.querySelector('#bookErr').style.display = 'block';
+        return;
+      }
+      bookingsForCurrentDate()[desk.id] = `${fn} ${ln}`;
+      saveBookings();
+      updateStats();
+      render();
+    });
+    [pop.querySelector('#fname'), pop.querySelector('#lname')].forEach(inp=>{
+      inp.addEventListener('keydown', (e)=>{ if(e.key==='Enter') pop.querySelector('#confirmBook').click(); });
+    });
+    setTimeout(()=>{ document.addEventListener('click', outsideCloser); outsideCloserAttached = true; }, 0);
+  }
+
+  function openOccupiedPopover(desk, el, bookedBy){
+    closePopovers();
+    const pop = document.createElement('div');
+    pop.className = 'popover';
+    pop.innerHTML = `
+      <h4>${escapeHtml(desk.label)}</h4>
+      <div class="datehint">${niceDate(currentDate)}${currentDate===todayISO() ? ' (сегодня)':''}</div>
+      <div class="name-line"><span class="dot"></span>${escapeHtml(bookedBy)}</div>
+      <div class="row">
+        <button class="btn btn-ghost" id="cancelFree">Закрыть</button>
+        <button class="btn btn-outline" id="confirmFree">Освободить место</button>
+      </div>
+    `;
+    document.body.appendChild(pop);
+    positionPopoverNear(pop, desk, el);
+    activePopover = pop;
+    pop.querySelector('#cancelFree').addEventListener('click', closePopovers);
+    pop.querySelector('#confirmFree').addEventListener('click', ()=>{
+      delete bookingsForCurrentDate()[desk.id];
+      saveBookings();
+      updateStats();
+      render();
+    });
+    setTimeout(()=>{ document.addEventListener('click', outsideCloser); outsideCloserAttached = true; }, 0);
+  }
+
+  function openEditPopover(desk, el){
+    closePopovers();
+    const type = itemType(desk);
+    const bookedBy = type === 'desk' ? (bookingsForCurrentDate()[desk.id] || null) : null;
+    const isAbsentToday = type === 'permanent' && bookingsForCurrentDate()[desk.id] === 'absent';
+    const pop = document.createElement('div');
+    pop.className = 'popover edit-popover';
+    pop.innerHTML = `
+      <span class="type-tag">${TYPE_LABELS[type]}</span>
+      <h4>Настройка</h4>
+      <input type="text" id="labelInput" value="${escapeHtml(desk.label)}" placeholder="Название">
+      ${type === 'permanent' ? `<input type="text" id="ownerInput" value="${escapeHtml(desk.owner || '')}" placeholder="Кто занимает (имя)">` : ''}
+      ${bookedBy ? `<div class="name-line"><span class="dot"></span>${escapeHtml(bookedBy)} (${niceDate(currentDate)})</div>` : ''}
+      ${type === 'permanent' ? `
+        <div class="err" id="absenceStatusAdmin" style="display:block; font-weight:600; padding:8px 10px; border-radius:8px; margin-bottom:10px; color:${isAbsentToday ? '#B8860B' : '#2E7D32'}; background:${isAbsentToday ? '#FFF6E5' : '#EAF7EC'};">
+          ${isAbsentToday ? `Отмечено: отсутствует ${niceDate(currentDate)}` : `На месте ${niceDate(currentDate)} (по умолчанию)`}
+        </div>
+        <button class="btn btn-outline" id="toggleAbsenceAdmin" style="width:100%; margin-bottom:10px;">${isAbsentToday ? 'На месте' : 'Отсутствует сегодня'}</button>
+      ` : ''}
+      <div class="row">
+        <button class="btn btn-danger" id="delDesk">Удалить</button>
+        <button class="btn btn-primary" id="saveLabel">Сохранить</button>
+      </div>
+    `;
+    document.body.appendChild(pop);
+    positionPopoverNear(pop, desk, el);
+    activePopover = pop;
+    const inp = pop.querySelector('#labelInput');
+    inp.focus(); inp.select();
+
+    pop.querySelector('#saveLabel').addEventListener('click', ()=>{
+      const val = inp.value.trim();
+      if(val) desk.label = val;
+      if(type === 'permanent'){
+        const ownerInp = pop.querySelector('#ownerInput');
+        if(ownerInp) desk.owner = ownerInp.value.trim();
+      }
+      saveLayout();
+      render();
+    });
+    inp.addEventListener('keydown', (e)=>{ if(e.key==='Enter') pop.querySelector('#saveLabel').click(); });
+    if(type === 'permanent'){
+      pop.querySelector('#toggleAbsenceAdmin').addEventListener('click', ()=>{
+        const day = bookingsForCurrentDate();
+        if(day[desk.id] === 'absent'){
+          delete day[desk.id];
+        } else {
+          day[desk.id] = 'absent';
+        }
+        saveBookings();
+        updateStats();
+        refreshItemVisual(desk, el);
+        openEditPopover(desk, el);
+      });
+    }
+    pop.querySelector('#delDesk').addEventListener('click', ()=>{
+      if(confirm(`Удалить «${desk.label}»? Элемент будет удалён на все даты.`)){
+        layout = layout.filter(d=>d.id !== desk.id);
+        Object.values(bookingsByDate).forEach(day=>{ delete day[desk.id]; });
+        saveLayout(); saveBookings();
+        updateStats(); render();
+      }
+    });
+    setTimeout(()=>{ document.addEventListener('click', outsideCloser); outsideCloserAttached = true; }, 0);
+  }
+
+  function openPermanentInfoPopover(item, el){
+    closePopovers();
+    const dayBookings = bookingsForCurrentDate();
+    const isAbsent = dayBookings[item.id] === 'absent';
+    const pop = document.createElement('div');
+    pop.className = 'popover';
+    pop.innerHTML = `
+      <span class="type-tag">Постоянное место</span>
+      <h4>${escapeHtml(item.label)}</h4>
+      <div class="datehint">на ${niceDate(currentDate)}${currentDate===todayISO() ? ' (сегодня)':''}</div>
+      <div class="name-line"><span class="dot"></span>${item.owner ? escapeHtml(item.owner) : 'Закреплено, владелец не указан'}</div>
+      <div class="err" id="absenceStatus" style="display:block; font-weight:600; padding:8px 10px; border-radius:8px; margin-bottom:10px; color:${isAbsent ? '#B8860B' : '#2E7D32'}; background:${isAbsent ? '#FFF6E5' : '#EAF7EC'};">
+        ${isAbsent ? 'Отмечено: сегодня отсутствует' : 'По умолчанию — на месте'}
+      </div>
+      <div class="row">
+        <button class="btn btn-outline" id="toggleAbsence" style="flex:1;">${isAbsent ? 'На месте' : 'Меня нет'}</button>
+        <button class="btn btn-ghost" id="closeInfo" style="flex:1;">Закрыть</button>
+      </div>
+    `;
+    document.body.appendChild(pop);
+    positionPopoverNear(pop, item, el);
+    activePopover = pop;
+    pop.querySelector('#closeInfo').addEventListener('click', closePopovers);
+    pop.querySelector('#toggleAbsence').addEventListener('click', ()=>{
+      const day = bookingsForCurrentDate();
+      if(day[item.id] === 'absent'){
+        delete day[item.id];
+      } else {
+        day[item.id] = 'absent';
+      }
+      saveBookings();
+      updateStats();
+      refreshItemVisual(item, el);
+      closePopovers();
+    });
+    setTimeout(()=>{ document.addEventListener('click', outsideCloser); outsideCloserAttached = true; }, 0);
+  }
+
+  function openMeetingPopover(item, el){
+    closePopovers();
+    const pop = document.createElement('div');
+    pop.className = 'popover wide';
+    pop.innerHTML = `
+      <span class="type-tag">Переговорка</span>
+      <h4>${escapeHtml(item.label)}</h4>
+      <div class="datehint">на ${niceDate(currentDate)}${currentDate===todayISO() ? ' (сегодня)':''}</div>
+      <div class="subhead">Бронь на сегодня</div>
+      <div class="slot-list" id="slotList"></div>
+      <div class="subhead">Добавить бронь</div>
+      <div class="time-row">
+        <input type="time" id="startTime" value="09:00">
+        <input type="time" id="endTime" value="10:00">
+      </div>
+      <input type="text" id="bookerName" placeholder="Имя и фамилия" autocomplete="off">
+      <div class="err" id="meetErr" style="display:none;"></div>
+      <div class="row">
+        <button class="btn btn-ghost" id="closeMeet">Закрыть</button>
+        <button class="btn btn-primary" id="addSlot">Забронировать</button>
+      </div>
+    `;
+    document.body.appendChild(pop);
+    positionPopoverNear(pop, item, el);
+    activePopover = pop;
+
+    const slotListEl = pop.querySelector('#slotList');
+    const errEl = pop.querySelector('#meetErr');
+
+    function renderSlotList(){
+      const slots = meetingSlots(item).slice().sort((a,b)=>timeToMin(a.start)-timeToMin(b.start));
+      if(slots.length === 0){
+        slotListEl.innerHTML = `<div class="empty-slots">Пока нет броней на этот день</div>`;
+        return;
+      }
+      slotListEl.innerHTML = slots.map((s)=>`
+        <div class="slot-row" data-start="${escapeHtml(s.start)}" data-end="${escapeHtml(s.end)}">
+          <span class="t">${escapeHtml(s.start)}–${escapeHtml(s.end)}</span>
+          <span class="n">${escapeHtml(s.name)}</span>
+          <button class="rm" title="Отменить бронь">×</button>
+        </div>
+      `).join('');
+      slotListEl.querySelectorAll('.slot-row').forEach(row=>{
+        row.querySelector('.rm').addEventListener('click', ()=>{
+          const start = row.dataset.start, end = row.dataset.end;
+          const arr = meetingSlots(item);
+          const idx = arr.findIndex(s=>s.start===start && s.end===end);
+          if(idx > -1) arr.splice(idx,1);
+          saveBookings();
+          updateStats();
+          refreshItemVisual(item, el);
+          renderSlotList();
+        });
+      });
+    }
+    renderSlotList();
+
+    pop.querySelector('#closeMeet').addEventListener('click', closePopovers);
+    pop.querySelector('#addSlot').addEventListener('click', ()=>{
+      const start = pop.querySelector('#startTime').value;
+      const end = pop.querySelector('#endTime').value;
+      const name = pop.querySelector('#bookerName').value.trim();
+      errEl.style.display = 'none';
+      if(!start || !end){ errEl.textContent = 'Укажите время начала и окончания'; errEl.style.display='block'; return; }
+      if(timeToMin(end) <= timeToMin(start)){ errEl.textContent = 'Время окончания должно быть позже начала'; errEl.style.display='block'; return; }
+      if(!name){ errEl.textContent = 'Введите имя и фамилию'; errEl.style.display='block'; return; }
+      const arr = meetingSlots(item);
+      const overlap = arr.some(s=>slotsOverlap(start,end,s.start,s.end));
+      if(overlap){ errEl.textContent = 'На это время уже есть бронь'; errEl.style.display='block'; return; }
+      arr.push({ start, end, name });
+      saveBookings();
+      updateStats();
+      refreshItemVisual(item, el);
+      renderSlotList();
+      pop.querySelector('#bookerName').value = '';
+    });
+    pop.querySelector('#bookerName').addEventListener('keydown', (e)=>{ if(e.key==='Enter') pop.querySelector('#addSlot').click(); });
+    setTimeout(()=>{ document.addEventListener('click', outsideCloser); outsideCloserAttached = true; }, 0);
+  }
+
+  function setupZonePointer(el, item){
+    const handle = el.querySelector('.resize-handle');
+
+    handle.addEventListener('pointerdown', (e)=>{
+      if(!isAdmin) return;
+      e.stopPropagation(); e.preventDefault();
+      const startX = e.clientX, startY = e.clientY;
+      const startW = item.w, startH = item.h;
+      handle.setPointerCapture(e.pointerId);
+      const onMove = (ev)=>{
+        const rect = plan.getBoundingClientRect();
+        const dxPct = ((ev.clientX - startX) / rect.width) * 100;
+        const dyPct = ((ev.clientY - startY) / rect.height) * 100;
+        const newW = Math.max(4, Math.min(100 - item.x, startW + dxPct));
+        const newH = Math.max(4, Math.min(100 - item.y, startH + dyPct));
+        item._newW = newW; item._newH = newH;
+        el.style.width = newW + '%';
+        el.style.height = newH + '%';
+      };
+      const onUp = ()=>{
+        document.removeEventListener('pointermove', onMove);
+        document.removeEventListener('pointerup', onUp);
+        if(item._newW !== undefined){
+          item.w = item._newW; item.h = item._newH;
+          delete item._newW; delete item._newH;
+          saveLayout();
+        }
+      };
+      document.addEventListener('pointermove', onMove);
+      document.addEventListener('pointerup', onUp);
+    });
+
+    el.addEventListener('pointerdown', (e)=>{
+      if(e.target.closest('.resize-handle') || e.target.closest('.zdel')) return;
+      if(!isAdmin) return;
+      e.preventDefault();
+      const startX = e.clientX, startY = e.clientY;
+      const startXPct = item.x, startYPct = item.y;
+      let moved = false;
+      el.setPointerCapture(e.pointerId);
+      const onMove = (ev)=>{
+        const dx = ev.clientX - startX, dy = ev.clientY - startY;
+        if(Math.abs(dx) > 4 || Math.abs(dy) > 4) moved = true;
+        if(!moved) return;
+        el.classList.add('dragging');
+        const rect = plan.getBoundingClientRect();
+        const dxPct = (dx / rect.width) * 100;
+        const dyPct = (dy / rect.height) * 100;
+        const newX = Math.max(0, Math.min(100 - item.w, startXPct + dxPct));
+        const newY = Math.max(0, Math.min(100 - item.h, startYPct + dyPct));
+        item._newX = newX; item._newY = newY;
+        el.style.left = newX + '%';
+        el.style.top = newY + '%';
+      };
+      const onUp = ()=>{
+        el.classList.remove('dragging');
+        document.removeEventListener('pointermove', onMove);
+        document.removeEventListener('pointerup', onUp);
+        if(moved && item._newX !== undefined){
+          item.x = item._newX; item.y = item._newY;
+          delete item._newX; delete item._newY;
+          saveLayout();
+        } else if(!moved){
+          openZoneEditPopover(item, el);
+        }
+      };
+      document.addEventListener('pointermove', onMove);
+      document.addEventListener('pointerup', onUp);
+    });
+  }
+
+  function setupTextPointer(el, item){
+    el.addEventListener('pointerdown', (e)=>{
+      if(e.target.closest('.tdel')) return;
+      if(!isAdmin) return;
+      e.preventDefault();
+      const startX = e.clientX, startY = e.clientY;
+      let moved = false;
+      el.setPointerCapture(e.pointerId);
+      const onMove = (ev)=>{
+        const dx = ev.clientX - startX, dy = ev.clientY - startY;
+        if(Math.abs(dx) > 4 || Math.abs(dy) > 4) moved = true;
+        if(!moved) return;
+        const rect = plan.getBoundingClientRect();
+        let xPct = ((ev.clientX - rect.left) / rect.width) * 100;
+        let yPct = ((ev.clientY - rect.top) / rect.height) * 100;
+        xPct = Math.max(2, Math.min(98, xPct));
+        yPct = Math.max(3, Math.min(97, yPct));
+        el.style.left = xPct + '%';
+        el.style.top = yPct + '%';
+        item._newX = xPct; item._newY = yPct;
+      };
+      const onUp = ()=>{
+        document.removeEventListener('pointermove', onMove);
+        document.removeEventListener('pointerup', onUp);
+        if(moved && item._newX !== undefined){
+          item.x = item._newX; item.y = item._newY;
+          delete item._newX; delete item._newY;
+          saveLayout();
+        } else if(!moved){
+          openTextEditPopover(item, el);
+        }
+      };
+      document.addEventListener('pointermove', onMove);
+      document.addEventListener('pointerup', onUp);
+    });
+  }
+
+  function openZoneEditPopover(item, el){
+    closePopovers();
+    const pop = document.createElement('div');
+    pop.className = 'popover edit-popover';
+    pop.innerHTML = `
+      <span class="type-tag">Зона / стена</span>
+      <h4>Настройка</h4>
+      <input type="text" id="zoneLabel" value="${escapeHtml(item.label || '')}" placeholder="Подпись (необязательно)">
+      <div class="color-row">
+        <input type="color" id="zoneColor" value="${item.color || '#D9D3C8'}">
+        <span class="swnote">Цвет заливки</span>
+      </div>
+      <div class="row">
+        <button class="btn btn-danger" id="delZone">Удалить</button>
+        <button class="btn btn-primary" id="saveZone">Сохранить</button>
+      </div>
+    `;
+    document.body.appendChild(pop);
+    positionNearElement(el, pop, { estHeight: pop.offsetHeight || 200 });
+    activePopover = pop;
+    const inp = pop.querySelector('#zoneLabel');
+    inp.focus();
+
+    pop.querySelector('#saveZone').addEventListener('click', ()=>{
+      item.label = inp.value.trim();
+      item.color = pop.querySelector('#zoneColor').value;
+      saveLayout();
+      render();
+    });
+    inp.addEventListener('keydown', (e)=>{ if(e.key==='Enter') pop.querySelector('#saveZone').click(); });
+    pop.querySelector('#delZone').addEventListener('click', ()=>{
+      if(confirm(`Удалить зону «${item.label || 'без названия'}»?`)){
+        layout = layout.filter(d=>d.id !== item.id);
+        saveLayout();
+        render();
+      }
+    });
+    setTimeout(()=>{ document.addEventListener('click', outsideCloser); outsideCloserAttached = true; }, 0);
+  }
+
+  function openTextEditPopover(item, el){
+    closePopovers();
+    const pop = document.createElement('div');
+    pop.className = 'popover edit-popover';
+    pop.innerHTML = `
+      <span class="type-tag">Текст</span>
+      <h4>Надпись</h4>
+      <textarea id="textInput" placeholder="Например: Кухня, Коридор, Ресепшн">${escapeHtml(item.text || '')}</textarea>
+      <div class="row">
+        <button class="btn btn-danger" id="delText">Удалить</button>
+        <button class="btn btn-primary" id="saveText">Сохранить</button>
+      </div>
+    `;
+    document.body.appendChild(pop);
+    positionNearElement(el, pop, { estHeight: pop.offsetHeight || 160 });
+    activePopover = pop;
+    const inp = pop.querySelector('#textInput');
+    inp.focus(); inp.select();
+
+    pop.querySelector('#saveText').addEventListener('click', ()=>{
+      const val = inp.value.trim();
+      item.text = val || 'Текст';
+      saveLayout();
+      render();
+    });
+    pop.querySelector('#delText').addEventListener('click', ()=>{
+      if(confirm(`Удалить текст «${item.text}»?`)){
+        layout = layout.filter(d=>d.id !== item.id);
+        saveLayout();
+        render();
+      }
+    });
+    setTimeout(()=>{ document.addEventListener('click', outsideCloser); outsideCloserAttached = true; }, 0);
+  }
+
+  function outsideCloser(e){
+    if(activePopover && !activePopover.contains(e.target) && !e.target.closest('.desk, .zone-el, .text-el')){
+      closePopovers();
+    }
+  }
+
+  // add item (placing mode) — пять типов элементов схемы
+  const placeBtns = { desk: addDeskBtn, meeting: addMeetingBtn, permanent: addPermanentBtn, text: addTextBtn, zone: addZoneBtn };
+  const placeLabels = { desk: '+ Рабочее место', meeting: '+ Переговорка', permanent: '+ Постоянное место', text: '+ Текст', zone: '+ Зона / стена' };
+
+  function armPlacing(type){
+    pendingType = type;
+    placingMode = true;
+    plan.classList.add('placing');
+    Object.entries(placeBtns).forEach(([t, btn])=>{
+      btn.disabled = true;
+      btn.textContent = (t === type) ? 'Кликните по схеме…' : placeLabels[t];
+    });
+  }
+  function disarmPlacing(){
+    placingMode = false;
+    plan.classList.remove('placing');
+    Object.entries(placeBtns).forEach(([t, btn])=>{
+      btn.disabled = false;
+      btn.textContent = placeLabels[t];
+    });
+  }
+  addDeskBtn.addEventListener('click', ()=>armPlacing('desk'));
+  addMeetingBtn.addEventListener('click', ()=>armPlacing('meeting'));
+  addPermanentBtn.addEventListener('click', ()=>armPlacing('permanent'));
+  addTextBtn.addEventListener('click', ()=>armPlacing('text'));
+  addZoneBtn.addEventListener('click', ()=>armPlacing('zone'));
+
+  plan.addEventListener('click', (e)=>{
+    if(!placingMode) return;
+    if(e.target.closest('.desk, .zone-el, .text-el')) return;
+    const rect = plan.getBoundingClientRect();
+    let xPct = ((e.clientX - rect.left) / rect.width) * 100;
+    let yPct = ((e.clientY - rect.top) / rect.height) * 100;
+
+    if(pendingType === 'zone'){
+      xPct = Math.max(0, Math.min(82, xPct));
+      yPct = Math.max(0, Math.min(86, yPct));
+      const n = layout.filter(d=>itemType(d) === 'zone').length + 1;
+      const w = Math.min(18, 100 - xPct);
+      const h = Math.min(14, 100 - yPct);
+      const newZone = { id: uid(), x: xPct, y: yPct, w, h, label: '', color: '#D9D3C8', type: 'zone' };
+      layout.push(newZone);
+      saveLayout();
+      render();
+      disarmPlacing();
+      return;
+    }
+
+    xPct = Math.max(4, Math.min(96, xPct));
+    yPct = Math.max(6, Math.min(94, yPct));
+
+    if(pendingType === 'text'){
+      const newText = { id: uid(), x: xPct, y: yPct, text: 'Текст', type: 'text' };
+      layout.push(newText);
+      saveLayout();
+      render();
+      disarmPlacing();
+      setTimeout(()=>{
+        const el = plan.querySelector(`.text-el[data-id="${newText.id}"]`);
+        if(el) openTextEditPopover(newText, el);
+      }, 0);
+      return;
+    }
+
+    const n = layout.filter(d=>itemType(d) === pendingType).length + 1;
+    const defaultLabels = { desk: `Стол ${n}`, meeting: `Переговорная ${n}`, permanent: `Место ${n}` };
+    const newItem = { id: uid(), x: xPct, y: yPct, label: defaultLabels[pendingType], type: pendingType };
+    if(pendingType === 'permanent') newItem.owner = '';
+    layout.push(newItem);
+    saveLayout();
+    render();
+    const placedType = pendingType;
+    disarmPlacing();
+    if(placedType === 'permanent'){
+      // сразу предлагаем указать, за кем закреплено место
+      setTimeout(()=>{
+        const el = plan.querySelector(`.desk[data-id="${newItem.id}"]`);
+        if(el) openEditPopover(newItem, el);
+      }, 0);
+    }
+  });
+
+  // навигация между разделами сайта
+  function switchTab(tab){
+    activeTab = tab;
+    navOffice.classList.toggle('active', tab === 'office');
+    navWho.classList.toggle('active', tab === 'who');
+    navGuests.classList.toggle('active', tab === 'guests');
+    officeSection.style.display = tab === 'office' ? '' : 'none';
+    whoSection.style.display = tab === 'who' ? '' : 'none';
+    guestSection.style.display = tab === 'guests' ? '' : 'none';
+    if(tab === 'who') renderWhoList();
+    if(tab === 'guests') renderGuestList();
+  }
+  navOffice.addEventListener('click', ()=>switchTab('office'));
+  navWho.addEventListener('click', ()=>switchTab('who'));
+  navGuests.addEventListener('click', ()=>switchTab('guests'));
+
+  function resetGuestForm(){
+    guestDateInput.value = '';
+    guestNameInput.value = '';
+    guestHostInput.value = '';
+  }
+  function resetCarForm(){
+    carDateInput.value = '';
+    carGuestNameInput.value = '';
+    carBrandInput.value = '';
+    carPlateInput.value = '';
+    carHostInput.value = '';
+  }
+
+  function fmtRuDate(iso){
+    const d = new Date(iso + 'T00:00:00');
+    return d.toLocaleDateString('ru-RU', { day:'numeric', month:'long' });
+  }
+
+  submitGuestBtn.addEventListener('click', async ()=>{
+    guestErr.style.display = 'none';
+    guestSuccess.style.display = 'none';
+    const visitDate = guestDateInput.value;
+    const guestName = guestNameInput.value.trim();
+    const hostName = guestHostInput.value.trim();
+    if(!visitDate){ guestErr.textContent = 'Укажите дату посещения'; guestErr.style.display = 'block'; return; }
+    if(!guestName){ guestErr.textContent = 'Введите ФИО гостя'; guestErr.style.display = 'block'; return; }
+    const record = { id: uid(), type: 'guest', visitDate, guestName, hostName, createdAt: new Date().toISOString(), status: 'new' };
+    const notifyResult = await sendEmailNotification(
+      `Новая заявка на гостевой пропуск — ${guestName}`,
+      { 'Тип заявки': 'Гостевой пропуск', 'Дата посещения': fmtRuDate(visitDate), 'ФИО гостя': guestName, 'Встречает': hostName || '—' }
+    );
+    record.notifyStatus = notifyResult.skipped ? 'off' : (notifyResult.ok ? 'confirmed' : 'failed');
+    guestPasses.push(record);
+    await saveGuestPasses();
+    guestSuccess.style.display = 'block';
+    resetGuestForm();
+    if(isAdmin) renderGuestList();
+  });
+
+  submitCarBtn.addEventListener('click', async ()=>{
+    carErr.style.display = 'none';
+    carSuccess.style.display = 'none';
+    const visitDate = carDateInput.value;
+    const guestName = carGuestNameInput.value.trim();
+    const carBrand = carBrandInput.value.trim();
+    const carPlate = carPlateInput.value.trim();
+    const hostName = carHostInput.value.trim();
+    if(!visitDate){ carErr.textContent = 'Укажите дату посещения'; carErr.style.display = 'block'; return; }
+    if(!guestName){ carErr.textContent = 'Введите ФИО гостя'; carErr.style.display = 'block'; return; }
+    if(!carPlate){ carErr.textContent = 'Введите гос. номер автомобиля'; carErr.style.display = 'block'; return; }
+    const record = { id: uid(), type: 'car', visitDate, guestName, carBrand, carPlate, hostName, createdAt: new Date().toISOString(), status: 'new' };
+    const notifyResult = await sendEmailNotification(
+      `Новая заявка на пропуск для авто — ${guestName}`,
+      { 'Тип заявки': 'Пропуск для автомобиля', 'Дата посещения': fmtRuDate(visitDate), 'ФИО гостя': guestName, 'Марка авто': carBrand || '—', 'Гос. номер': carPlate, 'Встречает': hostName || '—' }
+    );
+    record.notifyStatus = notifyResult.skipped ? 'off' : (notifyResult.ok ? 'confirmed' : 'failed');
+    guestPasses.push(record);
+    await saveGuestPasses();
+    carSuccess.style.display = 'block';
+    resetCarForm();
+    if(isAdmin) renderGuestList();
+  });
+
+  function pluralPeople(n){
+    const n10 = n % 10, n100 = n % 100;
+    if(n100 >= 11 && n100 <= 14) return 'человек';
+    if(n10 === 1) return 'человек';
+    if(n10 >= 2 && n10 <= 4) return 'человека';
+    return 'человек';
+  }
+
+  function renderWhoList(){
+    const dayBookings = bookingsForCurrentDate();
+
+    whoDateLabel.textContent = niceDate(currentDate) + ' · ' + fmtWeekday(currentDate) + (currentDate === todayISO() ? ' (сегодня)' : '');
+
+    const people = [];
+    layout.forEach(item=>{
+      const type = itemType(item);
+      if(type === 'desk'){
+        const name = dayBookings[item.id];
+        if(name) people.push({ name, place: item.label, permanent:false });
+      } else if(type === 'permanent'){
+        if(dayBookings[item.id] !== 'absent') people.push({ name: item.owner || 'Не указано', place: item.label, permanent:true });
+      }
+    });
+    people.sort((a,b)=>a.name.localeCompare(b.name, 'ru'));
+
+    whoSummary.textContent = people.length ? `${people.length} ${pluralPeople(people.length)}` : '0';
+
+    if(people.length === 0){
+      whoListEl.innerHTML = `<div class="guestEmpty">Пока никто не забронировал место на этот день</div>`;
+    } else {
+      whoListEl.innerHTML = people.map(p=>`
+        <div class="whoRow">
+          ${p.permanent ? '<span class="wTag">Пост.</span>' : ''}
+          <div class="wName">${escapeHtml(p.name)}</div>
+          <div class="wPlace">${escapeHtml(p.place)}</div>
+        </div>
+      `).join('');
+    }
+
+    const meetingRows = [];
+    layout.forEach(item=>{
+      if(itemType(item) !== 'meeting') return;
+      const slots = Array.isArray(dayBookings[item.id]) ? dayBookings[item.id] : [];
+      slots.forEach(s=>meetingRows.push({ room: item.label, start: s.start, end: s.end, name: s.name }));
+    });
+    meetingRows.sort((a,b)=>timeToMin(a.start) - timeToMin(b.start));
+
+    if(meetingRows.length === 0){
+      whoMeetingsCard.style.display = 'none';
+    } else {
+      whoMeetingsCard.style.display = '';
+      whoMeetingsList.innerHTML = meetingRows.map(r=>`
+        <div class="whoRow">
+          <div class="wName">${escapeHtml(r.name)}</div>
+          <div class="wPlace">${escapeHtml(r.room)} · ${escapeHtml(r.start)}–${escapeHtml(r.end)}</div>
+        </div>
+      `).join('');
+    }
+  }
+
+  function renderGuestList(){
+    adminGuestListCard.style.display = isAdmin ? '' : 'none';
+    notifySettingsCard.style.display = isAdmin ? '' : 'none';
+    if(!isAdmin) return;
+    const sorted = guestPasses.slice().sort((a,b)=>(a.visitDate||'').localeCompare(b.visitDate||''));
+    guestCountPill.textContent = guestPasses.length;
+    if(sorted.length === 0){
+      guestListEl.innerHTML = `<div class="guestEmpty">Пока нет заявок на пропуска</div>`;
+      return;
+    }
+    guestListEl.innerHTML = sorted.map(r=>{
+      const type = r.type || 'guest';
+      const d = new Date(r.visitDate + 'T00:00:00');
+      const dayNum = String(d.getDate()).padStart(2,'0');
+      const monthShort = d.toLocaleDateString('ru-RU', { month:'short' }).replace('.','');
+      const dow = WEEKDAYS[d.getDay()].slice(0,2);
+      const hostLine = r.hostName ? 'Встречает: ' + escapeHtml(r.hostName) : 'Встречающий не указан';
+      const carLine = type === 'car'
+        ? `<div class="gHost">Авто: ${r.carBrand ? escapeHtml(r.carBrand) + ', ' : ''}номер ${escapeHtml(r.carPlate || '—')}</div>`
+        : '';
+      const notifyBadge = {
+        confirmed: '<span class="notifyDot ok" title="Письмо подтверждённо отправлено">✓ письмо</span>',
+        failed: '<span class="notifyDot bad" title="Не удалось отправить уведомление на почту">✕ письмо</span>',
+        off: ''
+      }[r.notifyStatus || 'off'];
+      return `
+        <div class="guestRow ${r.status==='done' ? 'done' : ''}" data-id="${r.id}">
+          <div class="gDate">${dayNum} ${escapeHtml(monthShort)}<span class="dow">${dow}</span></div>
+          <div class="gInfo">
+            <div class="gName">${type === 'car' ? '<span class="gTypeTag">Авто</span>' : ''}${escapeHtml(r.guestName)} ${notifyBadge}</div>
+            <div class="gHost">${hostLine}</div>
+            ${carLine}
+          </div>
+          <div class="gActions">
+            <button class="gBtn done-btn" title="${r.status==='done' ? 'Вернуть в новые' : 'Отметить обработанной'}" data-action="toggle">${r.status==='done' ? '↺' : '✓'}</button>
+            <button class="gBtn del-btn" title="Удалить" data-action="del">×</button>
+          </div>
+        </div>
+      `;
+    }).join('');
+
+    guestListEl.querySelectorAll('.guestRow').forEach(row=>{
+      const id = row.dataset.id;
+      row.querySelector('[data-action="toggle"]').addEventListener('click', ()=>{
+        const rec = guestPasses.find(g=>g.id === id);
+        if(rec){ rec.status = rec.status === 'done' ? 'new' : 'done'; saveGuestPasses(); renderGuestList(); }
+      });
+      row.querySelector('[data-action="del"]').addEventListener('click', ()=>{
+        if(confirm('Удалить заявку на пропуск?')){
+          guestPasses = guestPasses.filter(g=>g.id !== id);
+          saveGuestPasses(); renderGuestList();
+        }
+      });
+    });
+  }
+
+  function fillNotifyInputs(){
+    ejsPublicKeyInput.value = notifySettings.publicKey || '';
+    ejsServiceIdInput.value = notifySettings.serviceId || '';
+    ejsTemplateIdInput.value = notifySettings.templateId || '';
+  }
+
+  tgSaveBtn.addEventListener('click', async ()=>{
+    tgErr.style.display = 'none';
+    tgSuccess.style.display = 'none';
+    notifySettings.publicKey = ejsPublicKeyInput.value.trim();
+    notifySettings.serviceId = ejsServiceIdInput.value.trim();
+    notifySettings.templateId = ejsTemplateIdInput.value.trim();
+    await saveNotifySettings();
+    tgSuccess.textContent = 'Готово — уведомления настроены.';
+    tgSuccess.style.display = 'block';
+  });
+
+  tgTestBtn.addEventListener('click', async ()=>{
+    tgErr.style.display = 'none';
+    tgSuccess.style.display = 'none';
+    const publicKey = ejsPublicKeyInput.value.trim();
+    const serviceId = ejsServiceIdInput.value.trim();
+    const templateId = ejsTemplateIdInput.value.trim();
+    if(!publicKey || !serviceId || !templateId){ tgErr.textContent = 'Заполните все три поля'; tgErr.style.display = 'block'; return; }
+    notifySettings.publicKey = publicKey;
+    notifySettings.serviceId = serviceId;
+    notifySettings.templateId = templateId;
+    tgTestBtn.disabled = true;
+    tgTestBtn.textContent = 'Отправка…';
+    const result = await sendEmailNotification(
+      'Тестовое уведомление от сайта офиса',
+      { 'Сообщение': 'Это проверочное письмо — если оно пришло, уведомления настроены верно.' }
+    );
+    tgTestBtn.disabled = false;
+    tgTestBtn.textContent = 'Отправить тест';
+    if(result.ok){
+      await saveNotifySettings();
+      tgSuccess.textContent = 'Готово — сервер подтвердил приём письма, проверьте почту (в том числе папку «Спам»).';
+      tgSuccess.style.display = 'block';
+    } else {
+      tgErr.textContent = 'Не удалось отправить: ' + (result.error || 'ошибка соединения') + '. Проверьте Public Key, Service ID и Template ID.';
+      tgErr.style.display = 'block';
+    }
+  });
+
+  // admin toggle
+  const adminAuthOverlay = document.getElementById('adminAuthOverlay');
+  const adminPasswordInput = document.getElementById('adminPasswordInput');
+  const adminAuthErr = document.getElementById('adminAuthErr');
+  const adminAuthSubmit = document.getElementById('adminAuthSubmit');
+  const adminAuthCancel = document.getElementById('adminAuthCancel');
+
+  function enterAdminMode(){
+    isAdmin = true;
+    adminToggleEl.classList.add('on');
+    adminBar.classList.add('show');
+    render();
+    renderGuestList();
+    fillNotifyInputs();
+  }
+
+  function exitAdminMode(){
+    isAdmin = false;
+    adminToggleEl.classList.remove('on');
+    adminBar.classList.remove('show');
+    disarmPlacing();
+    render();
+    renderGuestList();
+  }
+
+  function openAdminAuth(){
+    adminAuthErr.style.display = 'none';
+    adminPasswordInput.value = '';
+    adminAuthOverlay.style.display = 'flex';
+    setTimeout(()=>adminPasswordInput.focus(), 0);
+  }
+  function closeAdminAuth(){
+    adminAuthOverlay.style.display = 'none';
+  }
+
+  adminAuthCancel.addEventListener('click', closeAdminAuth);
+  adminAuthSubmit.addEventListener('click', ()=>{
+    if(adminPasswordInput.value === ADMIN_PASSWORD){
+      try{ sessionStorage.setItem(ADMIN_SESSION_KEY, '1'); }catch(e){}
+      closeAdminAuth();
+      enterAdminMode();
+    } else {
+      adminAuthErr.style.display = 'block';
+    }
+  });
+  adminPasswordInput.addEventListener('keydown', (e)=>{ if(e.key === 'Enter') adminAuthSubmit.click(); });
+
+  adminToggleEl.addEventListener('click', ()=>{
+    if(isAdmin){
+      exitAdminMode();
+      return;
+    }
+    let alreadyUnlocked = false;
+    try{ alreadyUnlocked = sessionStorage.getItem(ADMIN_SESSION_KEY) === '1'; }catch(e){}
+    if(alreadyUnlocked){
+      enterAdminMode();
+    } else {
+      openAdminAuth();
+    }
+  });
+
+  // date navigation
+  function shiftDate(days){
+    const d = new Date(currentDate + 'T00:00:00');
+    d.setDate(d.getDate() + days);
+    currentDate = formatLocalISO(d);
+    refreshDateUI();
+    render();
+    if(activeTab === 'who') renderWhoList();
+  }
+  prevDayBtn.addEventListener('click', ()=>shiftDate(-1));
+  nextDayBtn.addEventListener('click', ()=>shiftDate(1));
+  todayBtn.addEventListener('click', ()=>{
+    currentDate = todayISO();
+    refreshDateUI();
+    render();
+    if(activeTab === 'who') renderWhoList();
+  });
+  dateInput.addEventListener('change', ()=>{
+    if(dateInput.value){
+      currentDate = dateInput.value;
+      refreshDateUI();
+      render();
+      if(activeTab === 'who') renderWhoList();
+    }
+  });
+
+  whoPrevDay.addEventListener('click', ()=>shiftDate(-1));
+  whoNextDay.addEventListener('click', ()=>shiftDate(1));
+  whoTodayBtn.addEventListener('click', ()=>{
+    currentDate = todayISO();
+    refreshDateUI();
+    render();
+    renderWhoList();
+  });
+
+  // periodic sync so multiple people see live status
+  setInterval(async ()=>{
+    if(activePopover) return;
+    if(placingMode) return;
+    if(Date.now() < suppressSyncUntil) return; // недавно сохраняли локально — не перезаписываем
+    await loadLayout();
+    await loadBookings();
+    await loadGuestPasses();
+    if(activeTab === 'office') render();
+    else if(activeTab === 'who') renderWhoList();
+    else renderGuestList();
+  }, 5000);
+
+  // Проверяет, что запись/чтение из хранилища реально работает — иначе
+  // человек может строить схему или получать заявки, ничего не сохраняя,
+  // и заметить это только когда всё исчезнет после перезагрузки.
+  async function checkStorageHealth(){
+    if(!window.storage) return;
+    const testKey = 'office-healthcheck';
+    const testValue = String(Date.now());
+    try{
+      const setRes = await window.storage.set(testKey, testValue, true);
+      if(!setRes) throw new Error('set вернул пустой результат');
+      const getRes = await window.storage.get(testKey, true);
+      if(!getRes || getRes.value !== testValue) throw new Error('прочитанное значение не совпадает с записанным');
+    }catch(e){
+      console.error('Проверка хранилища не пройдена', e);
+      showPersistentStorageError();
+    }
+  }
+
+  function showPersistentStorageError(){
+    if(document.getElementById('storageHealthBanner')) return;
+    const bar = document.createElement('div');
+    bar.id = 'storageHealthBanner';
+    bar.style.cssText = 'position:fixed; top:0; left:0; right:0; z-index:1000; background:#C0392B; color:#fff; padding:12px 20px; font-size:13.5px; text-align:center; box-shadow:0 4px 14px rgba(0,0,0,.25);';
+    bar.innerHTML = `⚠️ Данные на этом сайте сейчас не сохраняются — изменения пропадут при обновлении страницы.
+      ${window.__usingExternalStorage ? 'Похоже, Firestore Rules ещё не разрешают запись — откройте Firebase Console → Firestore Database → Rules и опубликуйте открытые правила (инструкция в начале HTML-файла).' : 'Проверьте соединение.'}
+      <button id="closeHealthBanner" style="margin-left:12px; background:rgba(255,255,255,.2); border:none; color:#fff; border-radius:6px; padding:3px 10px; cursor:pointer; font-size:12.5px;">Скрыть</button>`;
+    document.body.appendChild(bar);
+    document.getElementById('closeHealthBanner').addEventListener('click', ()=>bar.remove());
+  }
+
+  async function reloadAllData(){
+    await loadLayout();
+    await loadBookings();
+    await loadGuestPasses();
+    await loadNotifySettings();
+    initialLoadDone = true;
+    render();
+    if(activeTab === 'guests') renderGuestList();
+  }
+
+  // База может подключиться позже, чем отрисовался интерфейс (например,
+  // Firebase ещё грузится на медленной сети) — как только она готова,
+  // подтягиваем данные без перезагрузки страницы.
+  window.addEventListener('app-storage-ready', ()=>{
+    reloadAllData();
+    checkStorageHealth();
+  });
+
+  (async function init(){
+    refreshDateUI();
+    guestDateInput.min = todayISO();
+    carDateInput.min = todayISO();
+    await reloadAllData();
+    checkStorageHealth();
+  })();
+}catch(e){
+  window.__mainScriptError = e;
+  if(window.__showAppError) window.__showAppError('Ошибка внутри основного скрипта: ' + (e && (e.stack || e.message || e)));
+}
+})();
+</script>
+
+</body>
+</html>
