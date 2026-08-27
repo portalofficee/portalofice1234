@@ -45,41 +45,45 @@
 </script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@500;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
-<noscript><link href="https://fonts.googleapis.com/css2?family=Manrope:wght@500;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet"></noscript>
+<link href="https://fonts.googleapis.com/css2?family=Wix+Madefor+Display:wght@400;500;600;700;800&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+<noscript><link href="https://fonts.googleapis.com/css2?family=Wix+Madefor+Display:wght@400;500;600;700;800&display=swap" rel="stylesheet"></noscript>
 <style>
   :root{
-    --orange: #FF6A1A;
-    --orange-dark: #E85A0C;
-    --orange-deep: #C94A08;
-    --orange-tint: #FFF1E6;
-    --orange-tint-2: #FFE2CC;
+    --orange: #FF5014;
+    --orange-dark: #E5470F;
+    --orange-deep: #CC3D0C;
+    --orange-tint: #FFF0EA;
+    --orange-tint-2: #FFDBCC;
+    --purple: #5D00D2;
+    --purple-dark: #4A00A8;
+    --purple-tint: #F1E6FC;
+    --yellow: #FFAF2F;
     --paper: #FFFFFF;
-    --bg: #FFFAF6;
-    --ink: #241A12;
-    --ink-soft: #8A7B6E;
-    --line: #F2DFCE;
+    --bg: #F7F7F7;
+    --ink: #000000;
+    --ink-soft: #767676;
+    --line: #D9D9D9;
     --free: #FFFFFF;
     --free-border: var(--orange);
     --occupied: var(--orange);
-    --perm-red: #E5382B;
-    --perm-red-dark: #C42A1E;
-    --perm-tint: #FDE9E7;
+    --perm-red: var(--purple);
+    --perm-red-dark: var(--purple-dark);
+    --perm-tint: var(--purple-tint);
   }
   *{box-sizing:border-box;}
   html,body{margin:0;padding:0;}
   body{
     background: var(--bg);
     background-image:
-      radial-gradient(circle at 1px 1px, #FFE4CC 1.5px, transparent 1.5px);
+      radial-gradient(circle at 1px 1px, #EAEAEA 1.5px, transparent 1.5px);
     background-size: 26px 26px;
-    font-family: 'Inter', system-ui, sans-serif;
+    font-family: 'Wix Madefor Display', system-ui, sans-serif;
     color: var(--ink);
     min-height:100vh;
     display:flex;
     flex-direction:column;
   }
-  h1,h2,h3,.display{font-family:'Manrope', system-ui, sans-serif;}
+  h1,h2,h3,.display{font-family:'Wix Madefor Display', system-ui, sans-serif;}
 
   /* Header */
   header{
@@ -97,12 +101,18 @@
     width:40px;height:40px;border-radius:11px;
     background: linear-gradient(145deg, var(--orange), var(--orange-deep));
     display:flex;align-items:center;justify-content:center;
-    box-shadow: 0 4px 10px rgba(255,106,26,.35);
+    box-shadow: 0 4px 10px rgba(255,80,20,.35);
     flex-shrink:0;
   }
   .brand .mark svg{width:22px;height:22px;}
   .brand-text .display{font-size:20px;font-weight:800;letter-spacing:-0.02em;line-height:1.1;}
-  .brand-text .sub{font-size:12.5px;color:var(--ink-soft);margin-top:2px;}
+  .brand-text .wordmark{
+    height:28px; width:auto; display:block;
+  }
+  .brand-text .sub{
+    font-size:11px; color:var(--ink); font-weight:700; margin-top:5px;
+    text-transform:uppercase; letter-spacing:0.09em;
+  }
 
   .stats{display:flex; gap:10px; flex-wrap:wrap;}
   .stat{
@@ -113,18 +123,18 @@
     min-width:96px;
     text-align:center;
   }
-  .stat .num{font-family:'Manrope';font-weight:800;font-size:20px;color:var(--orange-deep);line-height:1;}
+  .stat .num{font-family:'Wix Madefor Display';font-weight:800;font-size:20px;color:var(--orange-deep);line-height:1;}
   .stat .lbl{font-size:11px;color:var(--ink-soft);margin-top:3px;text-transform:uppercase;letter-spacing:.04em;}
   .stat.total .num{color:var(--ink);}
 
   .actions{display:flex;gap:10px;align-items:center;}
-  button{font-family:'Inter';cursor:pointer;border:none;outline:none;}
+  button{font-family:'Wix Madefor Display';cursor:pointer;border:none;outline:none;}
   .btn{
     padding:10px 16px;border-radius:10px;font-size:13.5px;font-weight:600;
     transition: transform .12s ease, box-shadow .12s ease, background .15s ease;
   }
   .btn:active{transform: scale(.96);}
-  .btn-primary{background: var(--orange); color:#fff; box-shadow:0 4px 10px rgba(255,106,26,.3);}
+  .btn-primary{background: var(--orange); color:#fff; box-shadow:0 4px 10px rgba(255,80,20,.3);}
   .btn-primary:hover{background:var(--orange-dark);}
   .btn-outline{background:#fff; color:var(--orange-deep); border:1.5px solid var(--orange);}
   .btn-outline:hover{background:var(--orange-tint);}
@@ -141,7 +151,7 @@
     font-size:13px; font-weight:600; color:var(--ink-soft);
   }
   .switch{
-    width:38px;height:22px;border-radius:999px;background:#E9DED2;
+    width:38px;height:22px;border-radius:999px;background:#D9D9D9;
     position:relative;transition:background .2s;flex-shrink:0;
   }
   .switch::after{
@@ -149,8 +159,8 @@
     border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.25);
     transition:transform .2s;
   }
-  .admin-toggle.on{color:var(--orange-deep);}
-  .admin-toggle.on .switch{background:var(--orange);}
+  .admin-toggle.on{color:var(--purple);}
+  .admin-toggle.on .switch{background:var(--purple);}
   .admin-toggle.on .switch::after{transform:translateX(16px);}
 
   /* main nav */
@@ -163,22 +173,22 @@
     background:transparent; color:var(--ink-soft);
   }
   .navtab:hover{background:var(--orange-tint);}
-  .navtab.active{background:var(--orange); color:#fff; box-shadow:0 4px 10px rgba(255,106,26,.3);}
+  .navtab.active{background:var(--orange); color:#fff; box-shadow:0 4px 10px rgba(255,80,20,.3);}
 
   /* admin bar */
   #adminBar{
     display:none;
     padding:10px 28px;
-    background: var(--orange-tint);
-    border-bottom:1px solid var(--orange-tint-2);
+    background: var(--purple-tint);
+    border-bottom:1px solid #E3CCF7;
     align-items:center;
     gap:12px;
     font-size:13px;
-    color: var(--orange-deep);
+    color: var(--purple-dark);
     flex-wrap:wrap;
   }
   #adminBar.show{display:flex;}
-  #adminBar .hint{color:#9c6b3f; font-weight:500;}
+  #adminBar .hint{color:#6B3FA0; font-weight:500;}
 
   /* date bar */
   #dateBar{
@@ -195,7 +205,7 @@
   }
   .dnbtn:hover{background:var(--orange-tint); border-color:var(--orange-tint-2);}
   #dateInput{
-    font-family:'Inter'; font-size:13.5px; font-weight:600; color:var(--ink);
+    font-family:'Wix Madefor Display'; font-size:13.5px; font-weight:600; color:var(--ink);
     border:1.5px solid var(--line); border-radius:10px; padding:7px 10px; background:#fff;
   }
   #dateInput:focus{outline:none; border-color:var(--orange);}
@@ -206,7 +216,7 @@
   main{flex:1; padding: 22px 28px 40px; display:flex; justify-content:center;}
   #planWrap{width:100%; max-width:1180px;}
   #planTitleRow{display:flex; align-items:baseline; justify-content:space-between; margin-bottom:12px; flex-wrap:wrap; gap:8px;}
-  #planTitleRow h2{font-size:16px; margin:0; color:var(--ink-soft); font-weight:700; letter-spacing:.01em;}
+  #planTitleRow h2{font-size:16px; margin:0; color:var(--orange); font-weight:700; letter-spacing:.01em;}
   .legend{display:flex; gap:16px; font-size:12.5px; color:var(--ink-soft);}
   .legend span{display:inline-flex;align-items:center;gap:6px;}
   .swatch{width:12px;height:12px;border-radius:4px;display:inline-block;}
@@ -222,14 +232,14 @@
     border:2px solid var(--line);
     border-radius:20px;
     overflow:hidden;
-    box-shadow: 0 10px 30px -12px rgba(200,110,30,.18);
+    box-shadow: 0 10px 30px -12px rgba(180,60,10,.18);
   }
   #plan.placing{cursor:crosshair;}
   #plan .empty-msg{
     position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
     flex-direction:column; gap:8px; color:var(--ink-soft); text-align:center; padding:20px;
   }
-  #plan .empty-msg b{color:var(--orange-deep); font-family:'Manrope';}
+  #plan .empty-msg b{color:var(--orange-deep); font-family:'Wix Madefor Display';}
 
   .desk{
     position:absolute;
@@ -243,17 +253,17 @@
     transition: box-shadow .15s ease, background .15s ease;
     background: var(--free);
     border: 2.5px solid var(--free-border);
-    box-shadow: 0 3px 8px rgba(255,106,26,.14);
+    box-shadow: 0 3px 8px rgba(255,80,20,.14);
     z-index:2;
   }
-  .desk:hover{ box-shadow: 0 6px 16px rgba(255,106,26,.28); z-index:5;}
+  .desk:hover{ box-shadow: 0 6px 16px rgba(255,80,20,.28); z-index:5;}
   .desk.occupied{
     background: linear-gradient(155deg, var(--orange), var(--orange-dark));
     border-color: var(--orange-deep);
   }
   .desk .icon{width:20px;height:20px;opacity:.85;}
   .desk.occupied .icon{opacity:.95;}
-  .desk .label{font-size:10px;font-weight:700;margin-top:3px;color:var(--orange-deep);font-family:'Manrope';}
+  .desk .label{font-size:10px;font-weight:700;margin-top:3px;color:var(--orange-deep);font-family:'Wix Madefor Display';}
   .desk.occupied .label{color:#fff;}
   .desk.dragging{opacity:.85; box-shadow:0 10px 22px rgba(0,0,0,.25); z-index:20;}
   .desk.admin-mode{cursor:grab;}
@@ -276,7 +286,7 @@
   .zone-el .zlabel{
     position:absolute; top:6px; left:8px; right:8px;
     font-size:11px; font-weight:700; color:rgba(0,0,0,.55);
-    font-family:'Manrope'; pointer-events:none;
+    font-family:'Wix Madefor Display'; pointer-events:none;
     white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
   }
   .zone-el.admin-mode{cursor:move;}
@@ -298,7 +308,7 @@
   /* free text labels */
   .text-el{
     position:absolute; transform:translate(-50%,-50%);
-    font-family:'Manrope'; font-weight:700; font-size:13px; color:var(--ink);
+    font-family:'Wix Madefor Display'; font-weight:700; font-size:13px; color:var(--ink);
     padding:3px 8px; border-radius:6px; white-space:nowrap;
     z-index:3; user-select:none; -webkit-user-select:none; touch-action:none;
   }
@@ -315,13 +325,19 @@
   .desk.type-meeting{ width:72px; height:72px; border-radius:16px; }
   .desk.type-meeting .label{ font-size:9.5px; }
 
-  /* permanent seat — always red, never bookable */
-  .desk.type-permanent{
+  /* permanent seat — фиолетовая заливка, когда человек на месте;
+     белая с фиолетовой обводкой — когда отмечено «сегодня отсутствует» */
+  .desk.type-permanent.occupied{
     background: linear-gradient(155deg, var(--perm-red), var(--perm-red-dark));
     border-color: var(--perm-red-dark);
   }
-  .desk.type-permanent .label{ color:#fff; }
-  .desk.type-permanent:hover{ box-shadow: 0 6px 16px rgba(229,56,43,.32); }
+  .desk.type-permanent.occupied .label{ color:#fff; }
+  .desk.type-permanent:not(.occupied){
+    background: #fff;
+    border-color: var(--purple);
+  }
+  .desk.type-permanent:not(.occupied) .label{ color: var(--purple-dark); }
+  .desk.type-permanent:hover{ box-shadow: 0 6px 16px rgba(93,0,210,.32); }
 
   /* tooltip */
   .tooltip{
@@ -344,13 +360,13 @@
     box-shadow: 0 14px 30px -8px rgba(120,60,10,.3);
     font-size:13px;
   }
-  .popover h4{margin:0 0 8px; font-size:13.5px; font-family:'Manrope'; font-weight:800;}
+  .popover h4{margin:0 0 8px; font-size:13.5px; font-family:'Wix Madefor Display'; font-weight:800;}
   .popover .datehint{font-size:11px; color:var(--ink-soft); margin:-6px 0 10px;}
   .popover .name-line{display:flex;align-items:center;gap:8px;margin-bottom:10px; padding:8px 10px; background:var(--orange-tint); border-radius:10px;}
   .popover .name-line .dot{width:8px;height:8px;border-radius:50%;background:var(--orange);flex-shrink:0;}
   .popover input{
     width:100%; padding:8px 10px; border-radius:8px; border:1.5px solid var(--line);
-    font-size:13px; margin-bottom:8px; font-family:'Inter';
+    font-size:13px; margin-bottom:8px; font-family:'Wix Madefor Display';
   }
   .popover input:focus{border-color:var(--orange); outline:none;}
   .popover .row{display:flex; gap:8px; margin-top:2px;}
@@ -381,22 +397,39 @@
   .popover .color-row .swnote{font-size:12px; color:var(--ink-soft);}
   .popover textarea{
     width:100%; padding:8px 10px; border-radius:8px; border:1.5px solid var(--line);
-    font-size:13px; margin-bottom:8px; font-family:'Inter'; resize:vertical; min-height:52px;
+    font-size:13px; margin-bottom:8px; font-family:'Wix Madefor Display'; resize:vertical; min-height:52px;
   }
   .popover textarea:focus{border-color:var(--orange); outline:none;}
 
   footer{
-    text-align:center; padding:14px; font-size:11.5px; color:var(--ink-soft);
+    text-align:center; padding:14px; font-size:11.5px; color:var(--orange);
   }
 
   /* guest passes section */
   #guestWrap{width:100%; max-width:1180px; margin:0 auto; padding:26px 28px 40px;}
 
+  /* who's in the office */
+  #whoWrap{width:100%; max-width:720px; margin:0 auto; padding:26px 28px 40px;}
+  #whoDateBar{
+    display:flex; align-items:center; gap:10px; margin-bottom:20px;
+  }
+  #whoDateLabel{font-size:14px; font-weight:700; color:var(--ink);}
+  .whoRow{
+    display:flex; align-items:center; gap:12px; padding:12px 14px; border-radius:14px;
+    background:var(--bg); border:1.5px solid var(--line); margin-bottom:8px;
+  }
+  .whoRow .wName{font-weight:700; font-size:13.5px; color:var(--ink); flex:1; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+  .whoRow .wPlace{font-size:12px; color:var(--ink-soft); flex-shrink:0;}
+  .whoRow .wTag{
+    flex-shrink:0; font-size:9.5px; font-weight:800; border-radius:5px; padding:2px 7px;
+    text-transform:uppercase; letter-spacing:.03em; background:var(--purple-tint); color:var(--purple-dark);
+  }
+
   .infoCard{
     display:flex; align-items:flex-start; gap:16px;
     background: linear-gradient(135deg, var(--orange), var(--orange-dark));
     border-radius:20px; padding:20px 24px; margin-bottom:22px;
-    box-shadow: 0 10px 30px -12px rgba(200,90,10,.4);
+    box-shadow: 0 10px 30px -12px rgba(180,60,10,.4);
   }
   .infoIcon{
     width:40px; height:40px; border-radius:12px; flex-shrink:0;
@@ -404,7 +437,7 @@
   }
   .infoIcon svg{width:22px; height:22px;}
   .infoBody{color:#fff;}
-  .infoAddr{font-family:'Manrope'; font-weight:800; font-size:16px; margin-bottom:10px;}
+  .infoAddr{font-family:'Wix Madefor Display'; font-weight:800; font-size:16px; margin-bottom:10px;}
   .infoSteps{list-style:none; padding:0; margin:0 0 12px; counter-reset:step;}
   .infoSteps li{
     position:relative; padding-left:28px; font-size:13px; line-height:1.5;
@@ -430,7 +463,7 @@
 
   .guestFormCard, .guestListCard{
     background:#fff; border:2px solid var(--line); border-radius:20px; padding:24px;
-    box-shadow: 0 10px 30px -14px rgba(200,110,30,.18);
+    box-shadow: 0 10px 30px -14px rgba(180,60,10,.18);
   }
   .formNote{
     display:inline-block; font-size:10.5px; font-weight:800; color:var(--orange-deep);
@@ -443,7 +476,7 @@
   .fLabel:first-of-type{margin-top:0;}
   .fInput{
     width:100%; padding:11px 13px; border-radius:10px; border:1.5px solid var(--line);
-    font-size:14px; font-family:'Inter'; color:var(--ink);
+    font-size:14px; font-family:'Wix Madefor Display'; color:var(--ink);
   }
   .fInput:focus{outline:none; border-color:var(--orange);}
   .successMsg{
@@ -462,7 +495,7 @@
   }
   .guestRow.done{opacity:.55;}
   .guestRow .gDate{
-    flex-shrink:0; width:66px; text-align:center; font-family:'Manrope'; font-weight:800;
+    flex-shrink:0; width:66px; text-align:center; font-family:'Wix Madefor Display'; font-weight:800;
     color:var(--orange-deep); font-size:13px; line-height:1.3;
   }
   .guestRow .gDate .dow{display:block; font-size:10px; font-weight:600; color:var(--ink-soft); text-transform:uppercase;}
@@ -507,20 +540,20 @@
 
 <header>
   <div class="brand">
-    <div class="mark">
-      <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <rect x="3" y="7" width="18" height="11" rx="2" fill="white" fill-opacity="0.95"/>
-        <rect x="3" y="7" width="18" height="3.2" rx="1.2" fill="#FF6A1A"/>
-        <circle cx="7" cy="14.5" r="1.3" fill="#FF6A1A"/>
-      </svg>
-    </div>
     <div class="brand-text">
-      <div class="display">Офис · Места</div>
-      <div class="sub">Ежедневное бронирование рабочих мест</div>
+      <svg class="wordmark" viewBox="0 0 971 144" fill="none" xmlns="http://www.w3.org/2000/svg">
+<path d="M259.657 1.82373H216.799C177.955 1.82373 146.356 33.4869 146.356 72.4097C146.356 111.332 177.955 142.996 216.799 142.996H259.657C298.48 142.996 330.1 111.332 330.1 72.4097C330.1 33.4869 298.48 1.82373 259.657 1.82373ZM259.657 116.56H216.799C192.488 116.56 172.717 96.7496 172.717 72.3885C172.717 48.0274 192.488 28.2167 216.799 28.2167H259.657C283.969 28.2167 303.739 48.0274 303.739 72.3885C303.739 96.7496 283.969 116.56 259.657 116.56Z" fill="#FF5014"/>
+<path d="M0 142.975H26.8888V26.7356H100.437V142.975H127.326V1.21033H0" fill="#FF5014"/>
+<path d="M446.465 7.87698C455.527 11.9195 462.455 17.6976 467.292 25.2113C472.129 32.7461 474.537 41.6778 474.537 52.0276C474.537 62.3774 472.129 71.1609 467.292 78.7381C462.476 86.3364 455.527 92.1356 446.465 96.1782C437.404 100.2 426.779 102.231 414.57 102.231H382.781V142.953H356.61V1.82373H414.57C426.779 1.82373 437.404 3.83442 446.465 7.87698ZM439.326 72.8118C445.219 67.965 448.176 61.044 448.176 52.0487C448.176 43.0535 445.219 36.1114 439.326 31.2857C433.411 26.4389 424.772 24.026 413.366 24.026H382.781V80.0926H413.366C424.772 80.0926 433.411 77.6798 439.326 72.833" fill="#FF5014"/>
+<path d="M490.864 27.0457H540.375V143.264H567.264V27.0457H616.775V1.52051H490.864" fill="#FF5014"/>
+<path d="M752.823 0V16.2549C739.938 6.11674 723.547 0 705.635 0C664.573 0 631.242 32.0441 631.242 71.6019C631.242 111.16 664.573 143.267 705.635 143.267C723.547 143.267 739.938 137.15 752.823 127.012V143.267H779.965V0M705.635 119.859C677.965 119.859 655.617 98.27 655.617 71.6019C655.617 44.9337 677.965 23.4299 705.635 23.4299C727.476 23.4299 746 36.8909 752.823 55.6856C754.682 60.7018 755.653 66.0354 755.653 71.6019C755.653 77.1683 754.682 82.5654 752.823 87.5816C746 106.397 727.476 119.859 705.635 119.859Z" fill="#FF5014"/>
+<path d="M875.082 1.21033L813.256 143.271H842.469L891.515 27.942L940.286 143.271H970.344L908.539 1.21033" fill="#FF5014"/>
+</svg>
+      <div class="sub">Бронирование мест</div>
     </div>
   </div>
 
-  <div class="stats" id="stats">
+  <div class="stats" id="stats" style="display:none;">
     <div class="stat total"><div class="num" id="statTotal">0</div><div class="lbl">Всего мест</div></div>
     <div class="stat"><div class="num" id="statFree">0</div><div class="lbl">Свободно</div></div>
     <div class="stat"><div class="num" id="statOcc">0</div><div class="lbl">В офисе</div></div>
@@ -536,7 +569,8 @@
 </header>
 
 <nav id="mainNav">
-  <button class="navtab active" id="navOffice" data-tab="office">Схема офиса</button>
+  <button class="navtab active" id="navOffice" data-tab="office">Бронирование мест</button>
+  <button class="navtab" id="navWho" data-tab="who">Кто в офисе</button>
   <button class="navtab" id="navGuests" data-tab="guests">Гостевые пропуска</button>
 </nav>
 
@@ -576,6 +610,32 @@
 </main>
 
 <footer>Выберите дату, наведите курсор на элемент, чтобы увидеть статус. Переговорку можно забронировать на конкретное время — наведите курсор, чтобы увидеть расписание.</footer>
+</div>
+
+<div id="whoSection" style="display:none;">
+  <main>
+    <div id="whoWrap">
+      <div id="whoDateBar">
+        <button class="dnbtn" id="whoPrevDay">‹</button>
+        <div id="whoDateLabel"></div>
+        <button class="dnbtn" id="whoNextDay">›</button>
+        <button class="btn btn-ghost" id="whoTodayBtn">Сегодня</button>
+      </div>
+
+      <div class="guestListCard">
+        <div class="guestListHead">
+          <h2 class="secTitle" style="margin:0;">В офисе</h2>
+          <span class="guestCountPill" id="whoSummary">0</span>
+        </div>
+        <div id="whoList"></div>
+      </div>
+
+      <div class="guestListCard" id="whoMeetingsCard" style="display:none; margin-top:22px;">
+        <h2 class="secTitle">Переговорки заняты</h2>
+        <div id="whoMeetingsList"></div>
+      </div>
+    </div>
+  </main>
 </div>
 
 <div id="guestSection" style="display:none;">
@@ -673,6 +733,19 @@
       </div>
     </div>
   </main>
+</div>
+
+<div id="adminAuthOverlay" style="display:none; position:fixed; inset:0; z-index:2000; background:rgba(0,0,0,.4); align-items:center; justify-content:center;">
+  <div style="background:#fff; border-radius:20px; padding:28px; width:280px; box-shadow:0 20px 50px rgba(0,0,0,.3);">
+    <h3 style="margin:0 0 6px; font-size:16px; font-weight:800;">Вход для администратора</h3>
+    <p style="margin:0 0 14px; font-size:12.5px; color:var(--ink-soft);">Введите пароль, чтобы получить доступ к редактированию.</p>
+    <input type="password" id="adminPasswordInput" class="fInput" placeholder="Пароль" autocomplete="off" style="margin-bottom:10px;">
+    <div id="adminAuthErr" style="display:none; color:#C0392B; font-size:12px; margin-bottom:10px;">Неверный пароль</div>
+    <div style="display:flex; gap:8px;">
+      <button class="btn btn-ghost" id="adminAuthCancel" style="flex:1;">Отмена</button>
+      <button class="btn btn-primary" id="adminAuthSubmit" style="flex:1;">Войти</button>
+    </div>
+  </div>
 </div>
 
 <!-- SDK EmailJS для отправки уведомлений на email без своего сервера -->
@@ -806,9 +879,19 @@ try{
   const weekdayLabel = document.getElementById('weekdayLabel');
 
   const navOffice = document.getElementById('navOffice');
+  const navWho = document.getElementById('navWho');
   const navGuests = document.getElementById('navGuests');
   const officeSection = document.getElementById('officeSection');
+  const whoSection = document.getElementById('whoSection');
   const guestSection = document.getElementById('guestSection');
+  const whoPrevDay = document.getElementById('whoPrevDay');
+  const whoNextDay = document.getElementById('whoNextDay');
+  const whoTodayBtn = document.getElementById('whoTodayBtn');
+  const whoDateLabel = document.getElementById('whoDateLabel');
+  const whoSummary = document.getElementById('whoSummary');
+  const whoListEl = document.getElementById('whoList');
+  const whoMeetingsCard = document.getElementById('whoMeetingsCard');
+  const whoMeetingsList = document.getElementById('whoMeetingsList');
   const guestDateInput = document.getElementById('guestDate');
   const guestNameInput = document.getElementById('guestName');
   const guestHostInput = document.getElementById('guestHost');
@@ -855,6 +938,11 @@ try{
   let initialLoadDone = false;
   let pendingType = 'desk';    // тип элемента, который добавляем в режиме размещения
 
+  // Пароль для входа в режим администратора. Смените на свой прямо здесь —
+  // достаточно вписать новое слово между кавычками и сохранить файл.
+  const ADMIN_PASSWORD = 'portal2026';
+  const ADMIN_SESSION_KEY = 'office-admin-unlocked';
+
   const TYPE_LABELS = { desk: 'Рабочее место', meeting: 'Переговорка', permanent: 'Постоянное место', zone: 'Зона / стена', text: 'Текст' };
   const SHAPE_TYPES = ['zone', 'text']; // структурные элементы — не бронируются, не считаются местами
 
@@ -879,7 +967,7 @@ try{
   }
 
   function itemIcon(type, occupied){
-    const c = occupied ? '#fff' : (type === 'permanent' ? '#fff' : '#FF6A1A');
+    const c = occupied ? '#fff' : (type === 'permanent' ? '#5D00D2' : '#FF5014');
     if(type === 'meeting'){
       // часы — переговорка бронируется по времени
       return `<svg class="icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -890,8 +978,8 @@ try{
     if(type === 'permanent'){
       // булавка — место закреплено навсегда
       return `<svg class="icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <path d="M12 21s-6-5.2-6-10a6 6 0 1 1 12 0c0 4.8-6 10-6 10Z" stroke="#fff" stroke-width="1.6" stroke-linejoin="round"/>
-        <circle cx="12" cy="11" r="2.2" stroke="#fff" stroke-width="1.6"/>
+        <path d="M12 21s-6-5.2-6-10a6 6 0 1 1 12 0c0 4.8-6 10-6 10Z" stroke="${c}" stroke-width="1.6" stroke-linejoin="round"/>
+        <circle cx="12" cy="11" r="2.2" stroke="${c}" stroke-width="1.6"/>
       </svg>`;
     }
     return `<svg class="icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -1056,10 +1144,38 @@ try{
     if(activeTooltip){ activeTooltip.remove(); activeTooltip=null; }
   }
 
+  // Попап/подсказка «приклеены» к месту на схеме координатами на момент
+  // открытия. При прокрутке страницы место уезжает вместе с ней — чтобы
+  // попап не отставал и не «улетал» в сторону, пересчитываем его позицию
+  // на каждую прокрутку, а не закрываем.
+  let scrollRepositionQueued = false;
+  function repositionOnScroll(){
+    if(scrollRepositionQueued) return;
+    scrollRepositionQueued = true;
+    requestAnimationFrame(()=>{
+      scrollRepositionQueued = false;
+      if(activePopover && activePopover.__anchorEl){
+        if(activePopover.__anchorEl.isConnected){
+          positionNearElement(activePopover.__anchorEl, activePopover, activePopover.__posOpts);
+        } else {
+          closePopovers();
+        }
+      }
+      if(activeTooltip && activeTooltip.__anchorEl){
+        if(activeTooltip.__anchorEl.isConnected){
+          positionNearElement(activeTooltip.__anchorEl, activeTooltip, activeTooltip.__posOpts);
+        } else {
+          closeTooltip();
+        }
+      }
+    });
+  }
+  window.addEventListener('scroll', repositionOnScroll, true);
+
   function updateStats(){
     const dayBookings = bookingsForCurrentDate();
     const seats = layout.filter(d => !SHAPE_TYPES.includes(itemType(d)) && itemType(d) !== 'meeting');
-    const occSeats = seats.filter(d => itemType(d) === 'permanent' || !!dayBookings[d.id]).length;
+    const occSeats = seats.filter(d => (itemType(d) === 'permanent' && dayBookings[d.id] !== 'absent') || !!dayBookings[d.id]).length;
     statTotal.textContent = seats.length;
     statFree.textContent = seats.length - occSeats;
     statOcc.textContent = occSeats;
@@ -1198,9 +1314,13 @@ try{
     const type = itemType(item);
     const dayBookings = bookingsForCurrentDate();
     if(type === 'permanent'){
+      const isAbsent = dayBookings[item.id] === 'absent';
       return {
-        occupied: true,
-        tooltip: item.owner ? `Постоянное место · ${item.owner}` : 'Постоянное место · закреплено',
+        occupied: !isAbsent,
+        absent: isAbsent,
+        tooltip: isAbsent
+          ? (item.owner ? `${item.owner} — сегодня отсутствует` : 'Постоянное место · сегодня свободно')
+          : (item.owner ? `Постоянное место · ${item.owner}` : 'Постоянное место · закреплено'),
         multiline: false
       };
     }
@@ -1247,7 +1367,7 @@ try{
     t.className = 'tooltip' + (status.multiline ? ' multiline' : '');
     t.textContent = status.tooltip;
     document.body.appendChild(t);
-    positionNearElement(el, t, { estHeight: status.multiline ? 90 : 40, gap: 12 });
+    positionNearElement(el, t, { estHeight: status.multiline ? 90 : 40, gap: 12, preferAbove: true });
     activeTooltip = t;
   }
 
@@ -1329,15 +1449,29 @@ try{
   // используя реальные координаты элемента на схеме — так он никогда не
   // обрезается контейнером схемы (overflow:hidden), даже у самого края.
   function positionNearElement(el, node, opts = {}){
+    // запоминаем, к какому элементу и с какими опциями привязан этот узел —
+    // понадобится, чтобы пересчитать позицию при прокрутке страницы
+    node.__anchorEl = el;
+    node.__posOpts = opts;
     const rect = el.getBoundingClientRect();
     const centerX = rect.left + rect.width / 2;
     const estHeight = opts.estHeight || 60;
+    const gap = opts.gap || 10;
     let top, placeAbove;
-    if(rect.bottom + estHeight + 12 > window.innerHeight && rect.top - estHeight - 12 > 0){
-      top = rect.top - (opts.gap || 10);
+    if(opts.preferAbove){
+      // подсказка предпочтительно сверху; снизу — только если сверху места нет
+      if(rect.top - estHeight - gap > 0){
+        top = rect.top - gap;
+        placeAbove = true;
+      } else {
+        top = rect.bottom + gap;
+        placeAbove = false;
+      }
+    } else if(rect.bottom + estHeight + 12 > window.innerHeight && rect.top - estHeight - 12 > 0){
+      top = rect.top - gap;
       placeAbove = true;
     } else {
-      top = rect.bottom + (opts.gap || 10);
+      top = rect.bottom + gap;
       placeAbove = false;
     }
     node.style.position = 'fixed';
@@ -1433,6 +1567,7 @@ try{
     closePopovers();
     const type = itemType(desk);
     const bookedBy = type === 'desk' ? (bookingsForCurrentDate()[desk.id] || null) : null;
+    const isAbsentToday = type === 'permanent' && bookingsForCurrentDate()[desk.id] === 'absent';
     const pop = document.createElement('div');
     pop.className = 'popover edit-popover';
     pop.innerHTML = `
@@ -1441,6 +1576,12 @@ try{
       <input type="text" id="labelInput" value="${escapeHtml(desk.label)}" placeholder="Название">
       ${type === 'permanent' ? `<input type="text" id="ownerInput" value="${escapeHtml(desk.owner || '')}" placeholder="Кто занимает (имя)">` : ''}
       ${bookedBy ? `<div class="name-line"><span class="dot"></span>${escapeHtml(bookedBy)} (${niceDate(currentDate)})</div>` : ''}
+      ${type === 'permanent' ? `
+        <div class="err" id="absenceStatusAdmin" style="display:block; font-weight:600; padding:8px 10px; border-radius:8px; margin-bottom:10px; color:${isAbsentToday ? '#B8860B' : '#2E7D32'}; background:${isAbsentToday ? '#FFF6E5' : '#EAF7EC'};">
+          ${isAbsentToday ? `Отмечено: отсутствует ${niceDate(currentDate)}` : `На месте ${niceDate(currentDate)} (по умолчанию)`}
+        </div>
+        <button class="btn btn-outline" id="toggleAbsenceAdmin" style="width:100%; margin-bottom:10px;">${isAbsentToday ? 'На месте' : 'Отсутствует сегодня'}</button>
+      ` : ''}
       <div class="row">
         <button class="btn btn-danger" id="delDesk">Удалить</button>
         <button class="btn btn-primary" id="saveLabel">Сохранить</button>
@@ -1463,6 +1604,20 @@ try{
       render();
     });
     inp.addEventListener('keydown', (e)=>{ if(e.key==='Enter') pop.querySelector('#saveLabel').click(); });
+    if(type === 'permanent'){
+      pop.querySelector('#toggleAbsenceAdmin').addEventListener('click', ()=>{
+        const day = bookingsForCurrentDate();
+        if(day[desk.id] === 'absent'){
+          delete day[desk.id];
+        } else {
+          day[desk.id] = 'absent';
+        }
+        saveBookings();
+        updateStats();
+        refreshItemVisual(desk, el);
+        openEditPopover(desk, el);
+      });
+    }
     pop.querySelector('#delDesk').addEventListener('click', ()=>{
       if(confirm(`Удалить «${desk.label}»? Элемент будет удалён на все даты.`)){
         layout = layout.filter(d=>d.id !== desk.id);
@@ -1476,18 +1631,39 @@ try{
 
   function openPermanentInfoPopover(item, el){
     closePopovers();
+    const dayBookings = bookingsForCurrentDate();
+    const isAbsent = dayBookings[item.id] === 'absent';
     const pop = document.createElement('div');
     pop.className = 'popover';
     pop.innerHTML = `
       <span class="type-tag">Постоянное место</span>
       <h4>${escapeHtml(item.label)}</h4>
-      <div class="name-line"><span class="dot"></span>${item.owner ? escapeHtml(item.owner) : 'Закреплено, бронирование недоступно'}</div>
-      <div class="row"><button class="btn btn-outline" id="closeInfo" style="flex:1;">Закрыть</button></div>
+      <div class="datehint">на ${niceDate(currentDate)}${currentDate===todayISO() ? ' (сегодня)':''}</div>
+      <div class="name-line"><span class="dot"></span>${item.owner ? escapeHtml(item.owner) : 'Закреплено, владелец не указан'}</div>
+      <div class="err" id="absenceStatus" style="display:block; font-weight:600; padding:8px 10px; border-radius:8px; margin-bottom:10px; color:${isAbsent ? '#B8860B' : '#2E7D32'}; background:${isAbsent ? '#FFF6E5' : '#EAF7EC'};">
+        ${isAbsent ? 'Отмечено: сегодня отсутствует' : 'По умолчанию — на месте'}
+      </div>
+      <div class="row">
+        <button class="btn btn-outline" id="toggleAbsence" style="flex:1;">${isAbsent ? 'На месте' : 'Меня нет'}</button>
+        <button class="btn btn-ghost" id="closeInfo" style="flex:1;">Закрыть</button>
+      </div>
     `;
     document.body.appendChild(pop);
     positionPopoverNear(pop, item, el);
     activePopover = pop;
     pop.querySelector('#closeInfo').addEventListener('click', closePopovers);
+    pop.querySelector('#toggleAbsence').addEventListener('click', ()=>{
+      const day = bookingsForCurrentDate();
+      if(day[item.id] === 'absent'){
+        delete day[item.id];
+      } else {
+        day[item.id] = 'absent';
+      }
+      saveBookings();
+      updateStats();
+      refreshItemVisual(item, el);
+      closePopovers();
+    });
     setTimeout(()=>{ document.addEventListener('click', outsideCloser); outsideCloserAttached = true; }, 0);
   }
 
@@ -1846,12 +2022,16 @@ try{
   function switchTab(tab){
     activeTab = tab;
     navOffice.classList.toggle('active', tab === 'office');
+    navWho.classList.toggle('active', tab === 'who');
     navGuests.classList.toggle('active', tab === 'guests');
     officeSection.style.display = tab === 'office' ? '' : 'none';
+    whoSection.style.display = tab === 'who' ? '' : 'none';
     guestSection.style.display = tab === 'guests' ? '' : 'none';
+    if(tab === 'who') renderWhoList();
     if(tab === 'guests') renderGuestList();
   }
   navOffice.addEventListener('click', ()=>switchTab('office'));
+  navWho.addEventListener('click', ()=>switchTab('who'));
   navGuests.addEventListener('click', ()=>switchTab('guests'));
 
   function resetGuestForm(){
@@ -1916,6 +2096,66 @@ try{
     resetCarForm();
     if(isAdmin) renderGuestList();
   });
+
+  function pluralPeople(n){
+    const n10 = n % 10, n100 = n % 100;
+    if(n100 >= 11 && n100 <= 14) return 'человек';
+    if(n10 === 1) return 'человек';
+    if(n10 >= 2 && n10 <= 4) return 'человека';
+    return 'человек';
+  }
+
+  function renderWhoList(){
+    const dayBookings = bookingsForCurrentDate();
+
+    whoDateLabel.textContent = niceDate(currentDate) + ' · ' + fmtWeekday(currentDate) + (currentDate === todayISO() ? ' (сегодня)' : '');
+
+    const people = [];
+    layout.forEach(item=>{
+      const type = itemType(item);
+      if(type === 'desk'){
+        const name = dayBookings[item.id];
+        if(name) people.push({ name, place: item.label, permanent:false });
+      } else if(type === 'permanent'){
+        if(dayBookings[item.id] !== 'absent') people.push({ name: item.owner || 'Не указано', place: item.label, permanent:true });
+      }
+    });
+    people.sort((a,b)=>a.name.localeCompare(b.name, 'ru'));
+
+    whoSummary.textContent = people.length ? `${people.length} ${pluralPeople(people.length)}` : '0';
+
+    if(people.length === 0){
+      whoListEl.innerHTML = `<div class="guestEmpty">Пока никто не забронировал место на этот день</div>`;
+    } else {
+      whoListEl.innerHTML = people.map(p=>`
+        <div class="whoRow">
+          ${p.permanent ? '<span class="wTag">Пост.</span>' : ''}
+          <div class="wName">${escapeHtml(p.name)}</div>
+          <div class="wPlace">${escapeHtml(p.place)}</div>
+        </div>
+      `).join('');
+    }
+
+    const meetingRows = [];
+    layout.forEach(item=>{
+      if(itemType(item) !== 'meeting') return;
+      const slots = Array.isArray(dayBookings[item.id]) ? dayBookings[item.id] : [];
+      slots.forEach(s=>meetingRows.push({ room: item.label, start: s.start, end: s.end, name: s.name }));
+    });
+    meetingRows.sort((a,b)=>timeToMin(a.start) - timeToMin(b.start));
+
+    if(meetingRows.length === 0){
+      whoMeetingsCard.style.display = 'none';
+    } else {
+      whoMeetingsCard.style.display = '';
+      whoMeetingsList.innerHTML = meetingRows.map(r=>`
+        <div class="whoRow">
+          <div class="wName">${escapeHtml(r.name)}</div>
+          <div class="wPlace">${escapeHtml(r.room)} · ${escapeHtml(r.start)}–${escapeHtml(r.end)}</div>
+        </div>
+      `).join('');
+    }
+  }
 
   function renderGuestList(){
     adminGuestListCard.style.display = isAdmin ? '' : 'none';
@@ -2019,14 +2259,64 @@ try{
   });
 
   // admin toggle
-  adminToggleEl.addEventListener('click', ()=>{
-    isAdmin = !isAdmin;
-    adminToggleEl.classList.toggle('on', isAdmin);
-    adminBar.classList.toggle('show', isAdmin);
-    if(!isAdmin) disarmPlacing();
+  const adminAuthOverlay = document.getElementById('adminAuthOverlay');
+  const adminPasswordInput = document.getElementById('adminPasswordInput');
+  const adminAuthErr = document.getElementById('adminAuthErr');
+  const adminAuthSubmit = document.getElementById('adminAuthSubmit');
+  const adminAuthCancel = document.getElementById('adminAuthCancel');
+
+  function enterAdminMode(){
+    isAdmin = true;
+    adminToggleEl.classList.add('on');
+    adminBar.classList.add('show');
     render();
     renderGuestList();
-    if(isAdmin) fillNotifyInputs();
+    fillNotifyInputs();
+  }
+
+  function exitAdminMode(){
+    isAdmin = false;
+    adminToggleEl.classList.remove('on');
+    adminBar.classList.remove('show');
+    disarmPlacing();
+    render();
+    renderGuestList();
+  }
+
+  function openAdminAuth(){
+    adminAuthErr.style.display = 'none';
+    adminPasswordInput.value = '';
+    adminAuthOverlay.style.display = 'flex';
+    setTimeout(()=>adminPasswordInput.focus(), 0);
+  }
+  function closeAdminAuth(){
+    adminAuthOverlay.style.display = 'none';
+  }
+
+  adminAuthCancel.addEventListener('click', closeAdminAuth);
+  adminAuthSubmit.addEventListener('click', ()=>{
+    if(adminPasswordInput.value === ADMIN_PASSWORD){
+      try{ sessionStorage.setItem(ADMIN_SESSION_KEY, '1'); }catch(e){}
+      closeAdminAuth();
+      enterAdminMode();
+    } else {
+      adminAuthErr.style.display = 'block';
+    }
+  });
+  adminPasswordInput.addEventListener('keydown', (e)=>{ if(e.key === 'Enter') adminAuthSubmit.click(); });
+
+  adminToggleEl.addEventListener('click', ()=>{
+    if(isAdmin){
+      exitAdminMode();
+      return;
+    }
+    let alreadyUnlocked = false;
+    try{ alreadyUnlocked = sessionStorage.getItem(ADMIN_SESSION_KEY) === '1'; }catch(e){}
+    if(alreadyUnlocked){
+      enterAdminMode();
+    } else {
+      openAdminAuth();
+    }
   });
 
   // date navigation
@@ -2036,6 +2326,7 @@ try{
     currentDate = formatLocalISO(d);
     refreshDateUI();
     render();
+    if(activeTab === 'who') renderWhoList();
   }
   prevDayBtn.addEventListener('click', ()=>shiftDate(-1));
   nextDayBtn.addEventListener('click', ()=>shiftDate(1));
@@ -2043,13 +2334,24 @@ try{
     currentDate = todayISO();
     refreshDateUI();
     render();
+    if(activeTab === 'who') renderWhoList();
   });
   dateInput.addEventListener('change', ()=>{
     if(dateInput.value){
       currentDate = dateInput.value;
       refreshDateUI();
       render();
+      if(activeTab === 'who') renderWhoList();
     }
+  });
+
+  whoPrevDay.addEventListener('click', ()=>shiftDate(-1));
+  whoNextDay.addEventListener('click', ()=>shiftDate(1));
+  whoTodayBtn.addEventListener('click', ()=>{
+    currentDate = todayISO();
+    refreshDateUI();
+    render();
+    renderWhoList();
   });
 
   // periodic sync so multiple people see live status
@@ -2061,6 +2363,7 @@ try{
     await loadBookings();
     await loadGuestPasses();
     if(activeTab === 'office') render();
+    else if(activeTab === 'who') renderWhoList();
     else renderGuestList();
   }, 5000);
 
