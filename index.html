@@ -1527,12 +1527,21 @@ try{
           desk.x = desk._newX; desk.y = desk._newY;
           delete desk._newX; delete desk._newY;
           saveLayout();
-        } else if(!moved){
-          handleClick(desk, el);
         }
+        // Если это был именно тап без перетаскивания — попап открываем
+        // не здесь, а в обработчике 'click' ниже: iOS Safari надёжно
+        // разрешает автоматически открыть клавиатуру только внутри
+        // настоящего click-события, а не pointerup.
       };
       document.addEventListener('pointermove', onMove);
       document.addEventListener('pointerup', onUp);
+    });
+
+    el.addEventListener('click', (e)=>{
+      if(e.target.classList.contains('del')) return;
+      if(placingMode) return;
+      if(moved) return;
+      handleClick(desk, el);
     });
   }
 
@@ -1897,18 +1906,19 @@ try{
       document.addEventListener('pointerup', onUp);
     });
 
+    let zoneMoved = false;
     el.addEventListener('pointerdown', (e)=>{
       if(e.target.closest('.resize-handle') || e.target.closest('.zdel')) return;
       if(!isAdmin) return;
       e.preventDefault();
       const startX = e.clientX, startY = e.clientY;
       const startXPct = item.x, startYPct = item.y;
-      let moved = false;
+      zoneMoved = false;
       el.setPointerCapture(e.pointerId);
       const onMove = (ev)=>{
         const dx = ev.clientX - startX, dy = ev.clientY - startY;
-        if(Math.abs(dx) > 4 || Math.abs(dy) > 4) moved = true;
-        if(!moved) return;
+        if(Math.abs(dx) > 4 || Math.abs(dy) > 4) zoneMoved = true;
+        if(!zoneMoved) return;
         el.classList.add('dragging');
         const rect = plan.getBoundingClientRect();
         const dxPct = (dx / rect.width) * 100;
@@ -1923,31 +1933,37 @@ try{
         el.classList.remove('dragging');
         document.removeEventListener('pointermove', onMove);
         document.removeEventListener('pointerup', onUp);
-        if(moved && item._newX !== undefined){
+        if(zoneMoved && item._newX !== undefined){
           item.x = item._newX; item.y = item._newY;
           delete item._newX; delete item._newY;
           saveLayout();
-        } else if(!moved){
-          openZoneEditPopover(item, el);
         }
       };
       document.addEventListener('pointermove', onMove);
       document.addEventListener('pointerup', onUp);
     });
+
+    el.addEventListener('click', (e)=>{
+      if(e.target.closest('.resize-handle') || e.target.closest('.zdel')) return;
+      if(!isAdmin) return;
+      if(zoneMoved) return;
+      openZoneEditPopover(item, el);
+    });
   }
 
   function setupTextPointer(el, item){
+    let textMoved = false;
     el.addEventListener('pointerdown', (e)=>{
       if(e.target.closest('.tdel')) return;
       if(!isAdmin) return;
       e.preventDefault();
       const startX = e.clientX, startY = e.clientY;
-      let moved = false;
+      textMoved = false;
       el.setPointerCapture(e.pointerId);
       const onMove = (ev)=>{
         const dx = ev.clientX - startX, dy = ev.clientY - startY;
-        if(Math.abs(dx) > 4 || Math.abs(dy) > 4) moved = true;
-        if(!moved) return;
+        if(Math.abs(dx) > 4 || Math.abs(dy) > 4) textMoved = true;
+        if(!textMoved) return;
         const rect = plan.getBoundingClientRect();
         let xPct = ((ev.clientX - rect.left) / rect.width) * 100;
         let yPct = ((ev.clientY - rect.top) / rect.height) * 100;
@@ -1960,16 +1976,21 @@ try{
       const onUp = ()=>{
         document.removeEventListener('pointermove', onMove);
         document.removeEventListener('pointerup', onUp);
-        if(moved && item._newX !== undefined){
+        if(textMoved && item._newX !== undefined){
           item.x = item._newX; item.y = item._newY;
           delete item._newX; delete item._newY;
           saveLayout();
-        } else if(!moved){
-          openTextEditPopover(item, el);
         }
       };
       document.addEventListener('pointermove', onMove);
       document.addEventListener('pointerup', onUp);
+    });
+
+    el.addEventListener('click', (e)=>{
+      if(e.target.closest('.tdel')) return;
+      if(!isAdmin) return;
+      if(textMoved) return;
+      openTextEditPopover(item, el);
     });
   }
 
