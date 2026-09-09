@@ -413,6 +413,44 @@
 
   /* who's in the office */
   #whoWrap{width:100%; max-width:720px; margin:0 auto; padding:26px 28px 40px;}
+
+  /* help / instructions tab */
+  #helpWrap{width:100%; max-width:720px; margin:0 auto; padding:26px 28px 40px;}
+  .helpTitle{font-size:20px; font-weight:800; margin:0 0 4px;}
+  .helpIntro{font-size:13px; color:var(--ink-soft); margin:0 0 20px;}
+  .helpCard{
+    background:#fff; border:2px solid var(--line); border-radius:20px; padding:22px 24px;
+    margin-bottom:16px; box-shadow: 0 10px 30px -14px rgba(180,60,10,.18);
+  }
+  .helpCard h3{margin:0 0 12px; font-size:15px; font-weight:800;}
+  .helpText{margin:0 0 12px; font-size:13.5px; line-height:1.6; color:var(--ink-soft);}
+  .helpText:last-child{margin-bottom:0;}
+  .helpCallout{
+    background:var(--purple-tint); border:1.5px solid #E3CCF7; border-radius:12px;
+    padding:12px 14px; font-size:13.5px; line-height:1.6; color:var(--purple-dark);
+    margin:0 0 12px; font-weight:600;
+  }
+  .noteBox{
+    background:var(--orange-tint); border:1.5px solid var(--orange-tint-2); border-radius:12px;
+    padding:12px 14px; font-size:13px; line-height:1.5; color:var(--orange-deep);
+    font-weight:600;
+  }
+  .helpSteps{list-style:none; padding:0; margin:0; counter-reset:hstep;}
+  .helpSteps li{
+    position:relative; padding-left:30px; font-size:13.5px; line-height:1.6;
+    color:var(--ink); margin-bottom:10px;
+  }
+  .helpSteps li:last-child{margin-bottom:0;}
+  .helpSteps li::before{
+    counter-increment:hstep; content:counter(hstep);
+    position:absolute; left:0; top:1px;
+    width:20px; height:20px; border-radius:50%;
+    background:var(--orange-tint); color:var(--orange-deep);
+    font-size:11px; font-weight:800;
+    display:flex; align-items:center; justify-content:center;
+  }
+  .helpLegendRow{display:flex; align-items:center; gap:10px; font-size:13.5px; color:var(--ink); margin-bottom:8px;}
+  .helpLegendRow:last-child{margin-bottom:0;}
   #whoDateBar{
     display:flex; align-items:center; gap:10px; margin-bottom:20px;
   }
@@ -479,9 +517,12 @@
   .fLabel:first-of-type{margin-top:0;}
   .fInput{
     width:100%; padding:11px 13px; border-radius:10px; border:1.5px solid var(--line);
-    font-size:14px; font-family:'Wix Madefor Display'; color:var(--ink);
+    font-size:14px; font-family:'Wix Madefor Display'; color:var(--ink); background:#fff;
   }
   .fInput:focus{outline:none; border-color:var(--orange);}
+  /* iOS Safari иначе показывает поле даты пустым серым блоком без текста */
+  input[type="date"].fInput{ -webkit-appearance:none; appearance:none; min-height:44px; }
+  input[type="date"].fInput::-webkit-date-and-time-value{ text-align:left; min-height:20px; }
   .successMsg{
     margin-top:12px; padding:10px 14px; background:#EAF7EC; border:1.5px solid #C9E9CD;
     color:#2E7D32; border-radius:10px; font-size:13px; text-align:center; font-weight:600;
@@ -583,6 +624,7 @@
   <button class="navtab active" id="navOffice" data-tab="office">Бронирование мест</button>
   <button class="navtab" id="navWho" data-tab="who">Кто в офисе</button>
   <button class="navtab" id="navGuests" data-tab="guests">Гостевые пропуска</button>
+  <button class="navtab" id="navHelp" data-tab="help">Инструкция</button>
 </nav>
 
 <div id="officeSection">
@@ -651,6 +693,65 @@
   </main>
 </div>
 
+<div id="helpSection" style="display:none;">
+  <main>
+    <div id="helpWrap">
+      <h2 class="helpTitle">Как пользоваться сайтом</h2>
+      <p class="helpIntro">Короткая шпаргалка по всем разделам — если что-то непонятно, начните отсюда.</p>
+
+      <div class="helpCard">
+        <h3>Бронирование рабочего места</h3>
+        <ol class="helpSteps">
+          <li>Вверху страницы выберите дату — по умолчанию открыт сегодняшний день.</li>
+          <li>На схеме офиса найдите свободное место — оно <b>белое с оранжевой обводкой</b>.</li>
+          <li>Нажмите на него, впишите имя и фамилию и нажмите «Забронировать».</li>
+          <li>Чтобы отменить свою бронь — нажмите на занятое (оранжевое) место и выберите «Освободить место».</li>
+        </ol>
+      </div>
+
+      <div class="helpCard">
+        <h3>Правила бронирования</h3>
+        <p class="helpText">Если вы регулярно работаете из офиса, пожалуйста, проставьте своё расписание на неделю и забронируйте своё рабочее место. Так коллеги будут видеть актуальную загрузку офиса и понимать, какие места свободны.</p>
+        <div class="helpCallout">Часть рабочих мест мы отметили как постоянные. Если на схеме место подсвечено <b>фиолетовым</b>, значит оно закреплено за сотрудником и забронировать его другому человеку нельзя.</div>
+        <p class="helpText">Если вы обычно не работаете из офиса, но планируете приехать на встречу с коллегами и поработать, пожалуйста, в первую очередь выбирайте свободные места в зоне <b>open space</b>.</p>
+        <p class="helpText">Если свободные места в open space закончились и вы хотите занять место коллеги, который работает в гибридном формате, пожалуйста, сначала напишите ему и уточните, свободно ли его место в этот день.</p>
+      </div>
+
+      <div class="helpCard">
+        <h3>Переговорные комнаты</h3>
+        <ol class="helpSteps">
+          <li>Переговорки бронируются не на весь день, а на конкретное время.</li>
+          <li>Нажмите на переговорку (или наведите курсор на компьютере), чтобы увидеть расписание на выбранную дату.</li>
+          <li>Укажите время начала и окончания и своё имя — бронь добавится в расписание, не затрагивая другие записи.</li>
+        </ol>
+      </div>
+
+      <div class="helpCard">
+        <h3>Постоянные места</h3>
+        <ol class="helpSteps">
+          <li><b>Фиолетовые</b> места закреплены за конкретным сотрудником — забронировать их нельзя.</li>
+          <li>Если человека не будет в конкретный день (отпуск, командировка, удалёнка) — нажмите на его место и выберите «Меня нет».</li>
+          <li>Место при этом остаётся закреплённым за ним — просто на этот день оно не будет считаться занятым. Вернуть статус можно кнопкой «На месте».</li>
+        </ol>
+      </div>
+
+      <div class="helpCard">
+        <h3>Вкладка «Кто в офисе»</h3>
+        <p class="helpText">Показывает список всех, кто забронировал место на выбранную дату — по имени и фамилии. Удобно, чтобы быстро понять, кто будет в офисе, не разглядывая схему целиком.</p>
+      </div>
+
+      <div class="helpCard">
+        <h3>Гостевые пропуска</h3>
+        <ol class="helpSteps">
+          <li>Если к вам придёт гость — на вкладке «Гостевые пропуска» закажите для него пропуск заранее: укажите дату визита и ФИО гостя.</li>
+          <li>Если гость приедет на машине — заполните отдельную форму «Пропуск для автомобиля» рядом, добавив марку и номер машины.</li>
+          <li>После отправки заявку увидит администратор офиса и подготовит пропуск ко дню визита.</li>
+        </ol>
+      </div>
+    </div>
+  </main>
+</div>
+
 <div id="guestSection" style="display:none;">
   <main>
     <div id="guestWrap">
@@ -676,6 +777,7 @@
         <div class="guestFormCard">
           <h2 class="secTitle">Заказать гостевой пропуск</h2>
           <p class="secSub">Заявка придёт администратору офиса, чтобы подготовить пропуск ко дню визита.</p>
+          <div class="noteBox" style="margin-bottom:16px;">Если у вас как у сотрудника нет постоянного пропуска — закажите пропуск и на себя тоже, этой же формой.</div>
 
           <label class="fLabel" for="guestDate">Дата посещения</label>
           <input type="date" id="guestDate" class="fInput">
@@ -894,9 +996,11 @@ try{
   const navOffice = document.getElementById('navOffice');
   const navWho = document.getElementById('navWho');
   const navGuests = document.getElementById('navGuests');
+  const navHelp = document.getElementById('navHelp');
   const officeSection = document.getElementById('officeSection');
   const whoSection = document.getElementById('whoSection');
   const guestSection = document.getElementById('guestSection');
+  const helpSection = document.getElementById('helpSection');
   const whoPrevDay = document.getElementById('whoPrevDay');
   const whoNextDay = document.getElementById('whoNextDay');
   const whoTodayBtn = document.getElementById('whoTodayBtn');
@@ -2037,15 +2141,18 @@ try{
     navOffice.classList.toggle('active', tab === 'office');
     navWho.classList.toggle('active', tab === 'who');
     navGuests.classList.toggle('active', tab === 'guests');
+    navHelp.classList.toggle('active', tab === 'help');
     officeSection.style.display = tab === 'office' ? '' : 'none';
     whoSection.style.display = tab === 'who' ? '' : 'none';
     guestSection.style.display = tab === 'guests' ? '' : 'none';
+    helpSection.style.display = tab === 'help' ? '' : 'none';
     if(tab === 'who') renderWhoList();
     if(tab === 'guests') renderGuestList();
   }
   navOffice.addEventListener('click', ()=>switchTab('office'));
   navWho.addEventListener('click', ()=>switchTab('who'));
   navGuests.addEventListener('click', ()=>switchTab('guests'));
+  navHelp.addEventListener('click', ()=>switchTab('help'));
 
   function resetGuestForm(){
     guestDateInput.value = '';
