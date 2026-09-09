@@ -165,7 +165,7 @@
 
   /* main nav */
   #mainNav{
-    display:flex; gap:8px; padding:12px 28px;
+    display:flex; flex-wrap:wrap; gap:8px; padding:12px 28px;
     background:#fff; border-bottom:2px solid var(--line);
   }
   .navtab{
@@ -570,7 +570,8 @@
   .guestEmpty{text-align:center; padding:30px 10px; color:var(--ink-soft); font-size:13.5px;}
 
   @media (max-width: 640px){
-    #mainNav{padding:10px 16px;}
+    #mainNav{padding:10px 16px; gap:6px;}
+    .navtab{padding:8px 12px; font-size:12.5px;}
     #guestWrap{padding:16px;}
     header{padding:16px;}
     #dateBar{padding:12px 16px;}
@@ -1633,7 +1634,7 @@ try{
     document.body.appendChild(pop);
     positionPopoverNear(pop, desk, el);
     activePopover = pop;
-    pop.querySelector('#fname').focus();
+    requestAnimationFrame(()=>{ pop.querySelector('#fname').focus(); });
 
     pop.querySelector('#cancelBook').addEventListener('click', closePopovers);
     pop.querySelector('#confirmBook').addEventListener('click', ()=>{
@@ -1708,7 +1709,7 @@ try{
     positionPopoverNear(pop, desk, el);
     activePopover = pop;
     const inp = pop.querySelector('#labelInput');
-    inp.focus(); inp.select();
+    requestAnimationFrame(()=>{ inp.focus(); inp.select(); });
 
     pop.querySelector('#saveLabel').addEventListener('click', ()=>{
       const val = inp.value.trim();
@@ -1993,7 +1994,7 @@ try{
     positionNearElement(el, pop, { estHeight: pop.offsetHeight || 200 });
     activePopover = pop;
     const inp = pop.querySelector('#zoneLabel');
-    inp.focus();
+    requestAnimationFrame(()=>{ inp.focus(); });
 
     pop.querySelector('#saveZone').addEventListener('click', ()=>{
       item.label = inp.value.trim();
@@ -2029,7 +2030,7 @@ try{
     positionNearElement(el, pop, { estHeight: pop.offsetHeight || 160 });
     activePopover = pop;
     const inp = pop.querySelector('#textInput');
-    inp.focus(); inp.select();
+    requestAnimationFrame(()=>{ inp.focus(); inp.select(); });
 
     pop.querySelector('#saveText').addEventListener('click', ()=>{
       const val = inp.value.trim();
